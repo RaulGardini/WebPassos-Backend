@@ -203,7 +203,11 @@ router.post('/', async (req, res) => {
 
     // Validação de cargo
     const cargosPermitidos = [
-      'Professor',
+      'Professor de Jazz',
+      'Professor de Sapateado',
+      'Professor de Hip-hop',
+      'Professor de Ballet',
+      'Professor de Dança Contemporânea',
       'Recepcionista', 
       'Secretário',
       'Atendente Comercial',
