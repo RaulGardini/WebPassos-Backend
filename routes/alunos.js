@@ -69,7 +69,7 @@ router.get('/', async (req, res) => {
     const camposValidos = ['nome', 'sexo', 'cidade', 'data_nascimento', 'aluno_id'];
     const campoOrdenar = camposValidos.includes(ordenar) ? ordenar : 'nome';
     const direcaoOrdenar = direcao.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
-    
+
     query += ` ORDER BY ${campoOrdenar} ${direcaoOrdenar}`;
 
     // 📄 Paginação
@@ -157,14 +157,14 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query('SELECT * FROM alunos WHERE aluno_id = $1', [id]);
-    
+
     if (result.rows.length === 0) {
       return res.status(404).json({
         sucesso: false,
         mensagem: 'Aluno não encontrado'
       });
     }
-    
+
     res.json({
       sucesso: true,
       dados: result.rows[0]
@@ -184,13 +184,13 @@ router.get('/stats/resumo', async (req, res) => {
     const queries = [
       // Total de alunos
       'SELECT COUNT(*) as total FROM alunos',
-      
+
       // Alunos por sexo
       'SELECT sexo, COUNT(*) as quantidade FROM alunos GROUP BY sexo',
-      
+
       // Alunos por cidade (top 5)
       'SELECT cidade, COUNT(*) as quantidade FROM alunos GROUP BY cidade ORDER BY quantidade DESC LIMIT 5',
-      
+
       // Média de idade
       'SELECT ROUND(AVG(EXTRACT(YEAR FROM AGE(data_nascimento))), 1) as media_idade FROM alunos WHERE data_nascimento IS NOT NULL'
     ];
@@ -250,7 +250,7 @@ router.post('/', async (req, res) => {
     });
   } catch (error) {
     console.error('Erro ao criar aluno:', error.message);
-    
+
     // Erro de CPF duplicado
     if (error.code === '23505') {
       return res.status(409).json({

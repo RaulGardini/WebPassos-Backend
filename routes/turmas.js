@@ -139,159 +139,53 @@ router.post('/', async (req, res) => {
     }
 });
 
-// POST - Adicionar aluna à turma
-router.post('/:turma_id/adicionar-aluna', async (req, res) => {
-    try {
-        const { turma_id } = req.params;
-        const { aluno_id } = req.body;
-        const client = await pool.connect();
-
-        // Verificar se a turma existe e está ativa
-        const turmaExists = await client.query(
-            'SELECT capacidade_maxima FROM turmas WHERE turma_id = $1 AND status = true',
-            [turma_id]
-        );
-
-        if (turmaExists.rows.length === 0) {
-            client.release();
-            return res.status(404).json({
-                success: false,
-                message: 'Turma não encontrada'
-            });
-        }
-
-        const capacidadeMaxima = turmaExists.rows[0].capacidade_maxima;
-
-        // Verificar capacidade atual da turma
-        const alunosAtuais = await client.query(
-            'SELECT COUNT(*) as total FROM turmas_alunas WHERE turma_id = $1 AND status = true',
-            [turma_id]
-        );
-
-        if (parseInt(alunosAtuais.rows[0].total) >= capacidadeMaxima) {
-            client.release();
-            return res.status(400).json({
-                success: false,
-                message: 'Turma já atingiu a capacidade máxima'
-            });
-        }
-
-        // Verificar se a aluna já está na turma
-        const alunaJaMatriculada = await client.query(
-            'SELECT id FROM turmas_alunas WHERE turma_id = $1 AND aluno_id = $2 AND status = true',
-            [turma_id, aluno_id]
-        );
-
-        if (alunaJaMatriculada.rows.length > 0) {
-            client.release();
-            return res.status(400).json({
-                success: false,
-                message: 'Aluna já está matriculada nesta turma'
-            });
-        }
-
-        // Adicionar aluna à turma
-        await client.query(
-            'INSERT INTO turmas_alunas (turma_id, aluno_id) VALUES ($1, $2)',
-            [turma_id, aluno_id]
-        );
-
-        client.release();
-
-        res.json({
-            success: true,
-            message: 'Aluna adicionada à turma com sucesso!'
-        });
-
-    } catch (error) {
-        console.error('Erro ao adicionar aluna à turma:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Erro ao adicionar aluna à turma',
-            error: error.message
-        });
-    }
-});
-
-// DELETE - Remover aluna da turma
-router.delete('/:turma_id/remover-aluna/:aluno_id', async (req, res) => {
-    try {
-        const { turma_id, aluno_id } = req.params;
-        const client = await pool.connect();
-
-        // Remover aluna da turma (soft delete)
-        const result = await client.query(
-            'UPDATE turmas_alunas SET status = false WHERE turma_id = $1 AND aluno_id = $2 AND status = true',
-            [turma_id, aluno_id]
-        );
-
-        client.release();
-
-        if (result.rowCount === 0) {
-            return res.status(404).json({
-                success: false,
-                message: 'Aluna não encontrada nesta turma'
-            });
-        }
-
-        res.json({
-            success: true,
-            message: 'Aluna removida da turma com sucesso!'
-        });
-
-    } catch (error) {
-        console.error('Erro ao remover aluna da turma:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Erro ao remover aluna da turma',
-            error: error.message
-        });
-    }
-});
-
 // GET - Listar turmas com todas as informações
 router.get('/', async (req, res) => {
     try {
         const client = await pool.connect();
 
         const query = `
-      SELECT 
-        t.turma_id,
-        t.nome as nome_turma,
-        t.capacidade_maxima,
-        t.status,
-        m.nome as modalidade,
-        n.nome as nivel,
-        s.nome as sala,
-        c.nome as professor,
-        ARRAY_AGG(
-          JSON_BUILD_OBJECT(
-            'dia_semana', ht.dia_semana,
-            'horario_inicial', ht.horario_inicial::text,
-            'horario_final', ht.horario_final::text
-          ) ORDER BY 
-            CASE ht.dia_semana 
-              WHEN 'Segunda' THEN 1
-              WHEN 'Terça' THEN 2
-              WHEN 'Quarta' THEN 3
-              WHEN 'Quinta' THEN 4
-              WHEN 'Sexta' THEN 5
-              WHEN 'Sábado' THEN 6
-              WHEN 'Domingo' THEN 7
-            END
-        ) as horarios,
-        COUNT(ta.aluno_id) FILTER (WHERE ta.status = true) as total_alunos
-      FROM turmas t
-      LEFT JOIN modalidades m ON t.modalidade_id = m.modalidade_id
-      LEFT JOIN niveis n ON t.nivel_id = n.nivel_id
-      LEFT JOIN salas s ON t.sala_id = s.sala_id
-      LEFT JOIN colaboradores c ON t.colaborador_id = c.colaborador_id
-      LEFT JOIN horarios_turmas ht ON t.turma_id = ht.turma_id
-      LEFT JOIN turmas_alunas ta ON t.turma_id = ta.turma_id AND ta.status = true
-      WHERE t.status = true
-      GROUP BY t.turma_id, t.nome, t.capacidade_maxima, t.status, m.nome, n.nome, s.nome, c.nome
-      ORDER BY t.nome
-    `;
+            SELECT 
+                t.turma_id,
+                t.nome as nome_turma,
+                t.capacidade_maxima,
+                t.status,
+                t.modalidade_id,
+                t.nivel_id,
+                t.sala_id,
+                t.colaborador_id,
+                m.nome as modalidade,
+                n.nome as nivel,
+                s.nome as sala,
+                c.nome as professor,
+                ARRAY_AGG(
+                    JSON_BUILD_OBJECT(
+                        'dia_semana', ht.dia_semana,
+                        'horario_inicial', ht.horario_inicial::text,
+                        'horario_final', ht.horario_final::text
+                    ) ORDER BY 
+                        CASE ht.dia_semana 
+                            WHEN 'Segunda' THEN 1
+                            WHEN 'Terça' THEN 2
+                            WHEN 'Quarta' THEN 3
+                            WHEN 'Quinta' THEN 4
+                            WHEN 'Sexta' THEN 5
+                            WHEN 'Sábado' THEN 6
+                            WHEN 'Domingo' THEN 7
+                        END
+                ) as horarios,
+                COUNT(mat.aluno_id) FILTER (WHERE mat.status = 'ATIVA') as total_alunos
+            FROM turmas t
+            LEFT JOIN modalidades m ON t.modalidade_id = m.modalidade_id
+            LEFT JOIN niveis n ON t.nivel_id = n.nivel_id
+            LEFT JOIN salas s ON t.sala_id = s.sala_id
+            LEFT JOIN colaboradores c ON t.colaborador_id = c.colaborador_id
+            LEFT JOIN horarios_turmas ht ON t.turma_id = ht.turma_id
+            LEFT JOIN matricula mat ON t.turma_id = mat.turma_id AND mat.status = 'ATIVA'
+            WHERE t.status = true
+            GROUP BY t.turma_id, t.nome, t.capacidade_maxima, t.status, t.modalidade_id, t.nivel_id, t.sala_id, t.colaborador_id, m.nome, n.nome, s.nome, c.nome
+            ORDER BY t.nome
+        `;
 
         const result = await client.query(query);
         client.release();
@@ -318,19 +212,22 @@ router.get('/:turma_id/alunos', async (req, res) => {
         const client = await pool.connect();
 
         const query = `
-      SELECT 
-        a.aluno_id,
-        a.nome,
-        a.email,
-        a.celular,
-        a.data_nascimento,
-        ta.data_inclusao,
-        ta.id as turma_aluna_id
-      FROM alunos a
-      JOIN turmas_alunas ta ON a.aluno_id = ta.aluno_id
-      WHERE ta.turma_id = $1 AND ta.status = true
-      ORDER BY a.nome
-    `;
+            SELECT 
+                a.aluno_id,
+                a.nome,
+                a.email,
+                a.celular,
+                a.data_nascimento,
+                m.data_matricula as data_inclusao,
+                m.matricula_id as turma_aluna_id,
+                m.valor_matricula,
+                m.desconto,
+                m.status
+            FROM alunos a
+            JOIN matricula m ON a.aluno_id = m.aluno_id
+            WHERE m.turma_id = $1 AND m.status = 'ATIVA'
+            ORDER BY a.nome
+        `;
 
         const result = await client.query(query, [turma_id]);
         client.release();
