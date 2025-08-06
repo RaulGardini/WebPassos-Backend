@@ -4,6 +4,7 @@ const alunosRoutes = require('./routes/alunos');
 const colaboradoresRoutes = require('./routes/colaboradores');
 const usuariosRoutes = require('./routes/usuarios');
 const turmasRoutes = require('./routes/turmas');
+const matriculasRoutes = require('./routes/matriculas');
 
 const app = express();
 const PORT = 3001;
@@ -15,6 +16,7 @@ app.use('/alunos', alunosRoutes);
 app.use('/colaboradores', colaboradoresRoutes);
 app.use('/usuarios', usuariosRoutes);
 app.use('/turmas', turmasRoutes);
+app.use('/matriculas', matriculasRoutes);
 
 app.get('/test', (req, res) => {
   res.json({ message: 'Servidor funcionando!' });
