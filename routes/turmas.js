@@ -328,4 +328,166 @@ router.delete('/:turma_id', async (req, res) => {
     }
 });
 
+router.get('/:id/alunos', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const query = `
+            SELECT 
+                m.matricula_id,
+                m.aluno_id,
+                m.turma_id,
+                m.status,
+                m.data_matricula,
+                m.valor_matricula,
+                m.desconto,
+                a.nome,
+                a.email,
+                a.telefone,
+                a.data_nascimento,
+                a.cpf
+            FROM matriculas m
+            JOIN alunos a ON m.aluno_id = a.aluno_id
+            WHERE m.turma_id = ? AND m.status = 'ATIVA'
+            ORDER BY a.nome ASC
+        `;
+        
+        const [results] = await db.execute(query, [id]);
+        
+        res.json({
+            success: true,
+            data: results
+        });
+        
+    } catch (error) {
+        console.error('Erro ao buscar alunos da turma:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro interno do servidor'
+        });
+    }
+});
+
+// GET /turmas/:id/alunos-disponiveis - Buscar alunos não matriculados na turma
+router.get('/:id/alunos-disponiveis', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const query = `
+            SELECT 
+                a.aluno_id,
+                a.nome,
+                a.email,
+                a.telefone,
+                a.data_nascimento,
+                a.cpf
+            FROM alunos a
+            WHERE a.aluno_id NOT IN (
+                SELECT m.aluno_id 
+                FROM matriculas m 
+                WHERE m.turma_id = ? AND m.status = 'ATIVA'
+            )
+            AND a.status = true
+            ORDER BY a.nome ASC
+        `;
+        
+        const [results] = await db.execute(query, [id]);
+        
+        res.json({
+            success: true,
+            data: results
+        });
+        
+    } catch (error) {
+        console.error('Erro ao buscar alunos disponíveis:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro interno do servidor'
+        });
+    }
+});
+
+// POST /turmas/:id/alunos - Adicionar aluno à turma (criar matrícula)
+router.post('/:id/alunos', async (req, res) => {
+    try {
+        const { id: turma_id } = req.params;
+        const { aluno_id, valor_matricula, desconto } = req.body;
+        
+        // Validações
+        if (!aluno_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID do aluno é obrigatório'
+            });
+        }
+        
+        // Verificar se o aluno já está matriculado nesta turma
+        const [existingMatricula] = await db.execute(
+            'SELECT matricula_id FROM matriculas WHERE aluno_id = ? AND turma_id = ? AND status = "ATIVA"',
+            [aluno_id, turma_id]
+        );
+        
+        if (existingMatricula.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Aluno já está matriculado nesta turma'
+            });
+        }
+        
+        // Verificar capacidade da turma
+        const [turmaInfo] = await db.execute(
+            `SELECT 
+                t.capacidade_maxima,
+                COUNT(m.matricula_id) as total_matriculados
+            FROM turmas t
+            LEFT JOIN matriculas m ON (t.turma_id = m.turma_id AND m.status = 'ATIVA')
+            WHERE t.turma_id = ?
+            GROUP BY t.turma_id, t.capacidade_maxima`,
+            [turma_id]
+        );
+        
+        if (turmaInfo.length > 0 && turmaInfo[0].capacidade_maxima) {
+            if (turmaInfo[0].total_matriculados >= turmaInfo[0].capacidade_maxima) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Turma já atingiu a capacidade máxima'
+                });
+            }
+        }
+        
+        // Criar a matrícula
+        const insertQuery = `
+            INSERT INTO matriculas (aluno_id, turma_id, status, data_matricula, valor_matricula, desconto)
+            VALUES (?, ?, 'ATIVA', CURDATE(), ?, ?)
+        `;
+        
+        const [result] = await db.execute(insertQuery, [
+            aluno_id,
+            turma_id,
+            valor_matricula || 150.00,
+            desconto || 0.00
+        ]);
+        
+        res.status(201).json({
+            success: true,
+            message: 'Aluno adicionado à turma com sucesso',
+            data: {
+                matricula_id: result.insertId,
+                aluno_id,
+                turma_id,
+                status: 'ATIVA',
+                valor_matricula: valor_matricula || 150.00,
+                desconto: desconto || 0.00
+            }
+        });
+        
+    } catch (error) {
+        console.error('Erro ao adicionar aluno à turma:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro interno do servidor'
+        });
+    }
+});
+
 module.exports = router;
