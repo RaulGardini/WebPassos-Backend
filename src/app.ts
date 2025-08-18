@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import sequelize from "./config/database";
 import usuarioRoutes from "./routes/usuarioRoutes";
+import alunosRoutes from "./routes/alunosRoutes";
 
 const app = express();
 app.use(express.json());
@@ -12,6 +13,7 @@ app.use(cors({
 
 // Rotas
 app.use("/usuarios", usuarioRoutes);
+app.use("/alunos", alunosRoutes);
 
 sequelize.authenticate()
   .then(() => console.log("✅ Conectado ao banco com sucesso!"))
