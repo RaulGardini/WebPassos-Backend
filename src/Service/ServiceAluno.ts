@@ -1,4 +1,4 @@
-import AlunosRepository from "../repositories/alunosRepository";
+import AlunosRepository from "../Repository/RepositoryAluno";
 import { Op } from "sequelize";
 
 interface AlunoFilters {

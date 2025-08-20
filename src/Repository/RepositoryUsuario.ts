@@ -1,4 +1,4 @@
-import Usuario from "../models/usuarioModel";
+import Usuario from "../Models/Usuario";
 
 class UsuarioRepository {
   static async findAll() {

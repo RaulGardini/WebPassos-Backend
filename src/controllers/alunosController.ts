@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import AlunosService from "../services/alunosService";
+import AlunosService from "../Service/ServiceAluno";
 
 class AlunosController {
   // GET ALL - sem filtros

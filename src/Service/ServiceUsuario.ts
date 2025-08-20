@@ -1,4 +1,4 @@
-import UsuarioRepository from "../repositories/usuarioRepository";
+import UsuarioRepository from "../Repository/RepositoryUsuario";
 
 class UsuarioService {
   static async getAllUsuarios() {

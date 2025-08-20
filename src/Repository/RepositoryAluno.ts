@@ -1,4 +1,4 @@
-import Alunos from "../models/alunosModel";
+import Alunos from "../Models/Aluno";
 import { Op } from "sequelize";
 
 class AlunosRepository {
