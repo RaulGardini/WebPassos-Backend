@@ -27,7 +27,7 @@ interface CreateAlunoData {
 interface UpdateAlunoData {
   nome?: string;
   email?: string;
-  cpf?: string;
+  cpf: string;
   telefone?: string;
   sexo?: "M" | "F";
   endereco?: string;
@@ -98,6 +98,8 @@ class AlunosService {
 
   static async createAluno(alunoData: CreateAlunoData) {
 
+    alunoData.cpf = alunoData.cpf.replace(/\D/g, "");
+
     const existingAlunoByCpf = await AlunosRepository.findByCpf(alunoData.cpf);
     if (existingAlunoByCpf) {
       throw new Error("CPF já cadastrado");
@@ -109,20 +111,12 @@ class AlunosService {
       throw new Error("Nome já cadastrado");
     }
 
-
-    if (!this.isValidCpf(alunoData.cpf)) {
-      throw new Error("CPF inválido");
-    }
-
-
-    if (!this.isValidEmail(alunoData.email)) {
-      throw new Error("Email inválido");
-    }
-
     return await AlunosRepository.create(alunoData);
   }
 
   static async updateAluno(aluno_id: number, alunoData: UpdateAlunoData) {
+
+    alunoData.cpf = alunoData.cpf.replace(/\D/g, "");
 
     const existingAluno = await AlunosRepository.findById(aluno_id);
     if (!existingAluno) {
@@ -130,10 +124,6 @@ class AlunosService {
     }
 
     if (alunoData.cpf) {
-      if (!this.isValidCpf(alunoData.cpf)) {
-        throw new Error("CPF inválido");
-      }
-
       const existingAlunoByCpf = await AlunosRepository.findByCpf(alunoData.cpf, aluno_id);
       if (existingAlunoByCpf) {
         throw new Error("CPF já cadastrado para outro aluno");
@@ -145,10 +135,6 @@ class AlunosService {
       if (existingAlunoByNome) {
         throw new Error("Nome já cadastrado para outro aluno");
       }
-    }
-
-    if (alunoData.email && !this.isValidEmail(alunoData.email)) {
-      throw new Error("Email inválido");
     }
 
     const affectedRows = await AlunosRepository.update(aluno_id, alunoData);
@@ -174,26 +160,6 @@ class AlunosService {
     }
 
     return { message: "Aluno deletado com sucesso" };
-  }
-
-  private static isValidCpf(cpf: string): boolean {
-
-    const cleanCpf = cpf.replace(/\D/g, '');
-    
-    if (cleanCpf.length !== 11) {
-      return false;
-    }
-
-    if (/^(\d)\1+$/.test(cleanCpf)) {
-      return false;
-    }
-
-    return true;
-  }
-
-  private static isValidEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
   }
 }
 

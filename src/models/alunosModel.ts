@@ -52,7 +52,7 @@ Aluno.init(
       allowNull: false,
     },
     cpf: {
-      type: DataTypes.STRING(11),
+      type: DataTypes.STRING(15),
       allowNull: false,
       unique: true,
     },
