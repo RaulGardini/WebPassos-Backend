@@ -1,10 +1,11 @@
 import RepositoryCargo from "../Repository/RepositoryCargo";
 import { CreateCargoDTO } from "../DTOs/Cargo/CreateCargoDTO";
 import { UpdateCargoDTO } from "../DTOs/Cargo/UpdateCargoDTO";
+import { CargoFilter } from "../Filter/Cargo/CargoFilter";
 
 class ServiceCargo {
-    static async getAllCargos() {
-        return await RepositoryCargo.findAll();
+    static async getAllCargos(filters?: CargoFilter) {
+        return await RepositoryCargo.findAll(filters);
     }
 
     static async getCargoById(cargo_id: number) {

@@ -1,10 +1,15 @@
 import { Request, Response } from "express";
 import ServiceCargo from "../Service/ServiceCargo";
+import { CargoFilter } from "../Filter/Cargo/CargoFilter";
 
 class CargoController {
     static async getAllCargos(req: Request, res: Response) {
     try {
-      const cargos = await ServiceCargo.getAllCargos();
+      const filters: CargoFilter = {
+              nome_cargo: req.query.nome as string
+            };
+      
+      const cargos = await ServiceCargo.getAllCargos(filters);
       res.json(cargos);
     } catch (error) {
       res.status(500).json({ message: "Erro ao buscar cargos", error });

@@ -5,6 +5,8 @@ import usuarioRoutes from "./Routes/RouteUsuario";
 import alunosRoutes from "./Routes/RouteAluno";
 import colaboradoresRoutes from "./Routes/RouteColaborador";
 import RouteCargo from "./Routes/RouteCargo";
+import RouteModalidade from "./Routes/RouteModalidade";
+import RouteSala from "./Routes/RouteSala";
 
 const app = express();
 app.use(express.json());
@@ -18,6 +20,8 @@ app.use("/usuarios", usuarioRoutes);
 app.use("/alunos", alunosRoutes);
 app.use("/colaboradores", colaboradoresRoutes);
 app.use("/cargos", RouteCargo);
+app.use("/modalidades", RouteModalidade);
+app.use("/salas", RouteSala);
 
 sequelize.authenticate()
   .then(() => console.log("✅ Conectado ao banco com sucesso!"))
