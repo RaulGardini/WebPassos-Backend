@@ -1,9 +1,16 @@
 import Cargo from "../Models/Cargo";
 import { Op } from "sequelize";
+import { CargoFilter } from "../Filter/Cargo/CargoFilter";
 
 class RepositoryCargo {
-    static async findAll() {
-        return await Cargo.findAll();
+    static async findAll(filter?: CargoFilter) {
+        const where: any = {};
+
+            if (filter?.nome_cargo) {
+                where.nome_cargo = { [Op.like]: `%${filter.nome_cargo}%` };
+            }
+
+        return await Cargo.findAll({ where });
     }
 
     static async findById(cargo_id: number) {
@@ -13,7 +20,7 @@ class RepositoryCargo {
     static async create(cargoData: any) {
         return await Cargo.create(cargoData);
     }
-    
+
     static async update(cargo_id: number, cargoData: any) {
         const [affectedRows] = await Cargo.update(cargoData, {
             where: { cargo_id },
