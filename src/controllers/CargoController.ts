@@ -6,7 +6,7 @@ class CargoController {
     static async getAllCargos(req: Request, res: Response) {
     try {
       const filters: CargoFilter = {
-              nome_cargo: req.query.nome as string
+              nome_cargo: req.query.nome_cargo as string
             };
       
       const cargos = await ServiceCargo.getAllCargos(filters);
