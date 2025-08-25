@@ -7,6 +7,7 @@ import colaboradoresRoutes from "./Routes/RouteColaborador";
 import RouteCargo from "./Routes/RouteCargo";
 import RouteModalidade from "./Routes/RouteModalidade";
 import RouteSala from "./Routes/RouteSala";
+import RouteHorario from "./Routes/RouteHorario";
 
 const app = express();
 app.use(express.json());
@@ -22,6 +23,7 @@ app.use("/colaboradores", colaboradoresRoutes);
 app.use("/cargos", RouteCargo);
 app.use("/modalidades", RouteModalidade);
 app.use("/salas", RouteSala);
+app.use("/horarios", RouteHorario);
 
 sequelize.authenticate()
   .then(() => console.log("✅ Conectado ao banco com sucesso!"))
