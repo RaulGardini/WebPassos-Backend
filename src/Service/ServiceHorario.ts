@@ -1,0 +1,30 @@
+import RepositoryHorario from "../Repository/RepositoryHorario";
+import { CreateHorarioDTO } from "../DTOs/Horario/CreateHorarioDTO";
+import { UpdateHorarioDTO } from "../DTOs/Horario/UpdateHorarioDTO";
+
+class ServiceHorario {
+    static async getAllHorarios() {
+        return await RepositoryHorario.findAll();
+    }
+
+    static async getHorarioById(horarios_id: number) {
+        return await RepositoryHorario.findById(horarios_id);
+    }
+
+    static async createHorario(data: CreateHorarioDTO) {
+        return await RepositoryHorario.create(data);
+    }
+
+    static async updateHorario(horarios_id: number, data: UpdateHorarioDTO) {
+        return await RepositoryHorario.update(horarios_id, data);
+    }
+
+    static async deleteHorario(horarios_id: number) {
+        const deleted = await RepositoryHorario.delete(horarios_id);
+        if (deleted === 0) throw new Error("Erro ao deletar horário");
+
+        return { message: "Horário deletado com sucesso" };
+    }
+}
+
+export default ServiceHorario;
