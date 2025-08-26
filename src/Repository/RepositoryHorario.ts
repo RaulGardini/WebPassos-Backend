@@ -13,15 +13,15 @@ class RepositoryHorario {
         return await Horario.create(horarioData);
     }
 
-    static async update(horarios_id: number, horarioData: any) {
+    static async update(horario_id: number, horarioData: any) {
         const [affectedRows] = await Horario.update(horarioData, {
-            where: { horarios_id },
+            where: { horario_id },
         });
         return affectedRows;
     }
 
-    static async delete(horarios_id: number) {
-        return await Horario.destroy({ where: { horarios_id } });
+    static async delete(horario_id: number) {
+        return await Horario.destroy({ where: { horario_id } });
     }
 }
 
