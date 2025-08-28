@@ -18,7 +18,6 @@ export class HorariosTurmasService {
   }
 
   static async createHorarioTurma(data: CreateHorarioTurmaDTO) {
-    // Verificar se já existe essa associação
     const existing = await HorariosTurmasRepository.findByTurmaAndHorario(
       data.turma_id, 
       data.horario_id
@@ -34,7 +33,6 @@ export class HorariosTurmasService {
   static async createMultipleHorariosTurma(data: CreateMultipleHorariosTurmaDTO) {
     const { turma_id, horarios_ids } = data;
 
-    // Verificar se algum horário já está associado
     const existingHorarios = await HorariosTurmasRepository.findByTurmaId(turma_id);
     const existingHorariosIds = existingHorarios.map(h => h.horario_id);
     
@@ -44,7 +42,6 @@ export class HorariosTurmasService {
       throw new Error(`Os seguintes horários já estão associados à turma: ${duplicatedHorarios.join(', ')}`);
     }
 
-    // Criar os dados para inserção em lote
     const horariosTurmasData = horarios_ids.map(horario_id => ({
       turma_id,
       horario_id
