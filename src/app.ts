@@ -8,6 +8,8 @@ import RouteCargo from "./Routes/RouteCargo";
 import RouteModalidade from "./Routes/RouteModalidade";
 import RouteSala from "./Routes/RouteSala";
 import RouteHorario from "./Routes/RouteHorario";
+import RouteTurma from "./Routes/RouteTurma";
+import RouteHorarioTurma from "./Routes/RouteHorarioTurma";
 
 const app = express();
 app.use(express.json());
@@ -24,6 +26,8 @@ app.use("/cargos", RouteCargo);
 app.use("/modalidades", RouteModalidade);
 app.use("/salas", RouteSala);
 app.use("/horarios", RouteHorario);
+app.use("/turmas", RouteTurma);
+app.use("/", RouteHorarioTurma); // Para as rotas /turmas/:id/horarios
 
 sequelize.authenticate()
   .then(() => console.log("✅ Conectado ao banco com sucesso!"))

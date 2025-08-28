@@ -25,6 +25,14 @@ class ServiceHorario {
 
         return { message: "Horário deletado com sucesso" };
     }
+
+    static async getHorariosDisponiveisParaTurma(turmaId: number) {
+    try {
+      return await RepositoryHorario.findAvailableForTurma(turmaId);
+    } catch (error: any) {
+      throw new Error(`Erro ao buscar horários disponíveis: ${error.message}`);
+    }
+  }
 }
 
 export default ServiceHorario;
