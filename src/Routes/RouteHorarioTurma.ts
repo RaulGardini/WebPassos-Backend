@@ -11,5 +11,6 @@ router.delete("/turmas/:id/horarios/:hid", HorariosTurmasController.removeHorari
 // Rotas extras para CRUD completo (opcional)
 router.get("/horarios-turmas", HorariosTurmasController.getAllHorariosTurmas);
 router.get("/horarios-turmas/:id", HorariosTurmasController.getHorarioTurmaById);
+router.delete("/turmas/:id/horarios", HorariosTurmasController.removeAllHorariosFromTurma);
 
 export default router;

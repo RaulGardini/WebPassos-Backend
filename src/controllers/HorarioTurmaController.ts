@@ -113,4 +113,20 @@ export class HorariosTurmasController {
       return res.status(404).json({ error: error.message });
     }
   }
+
+static async removeAllHorariosFromTurma(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const turma_id = Number(id);
+
+    if (isNaN(turma_id)) {
+      return res.status(400).json({ error: "ID da turma inválido" });
+    }
+
+    const result = await HorariosTurmasService.deleteAllHorariosFromTurma(turma_id);
+    return res.json(result);
+  } catch (error: any) {
+    return res.status(400).json({ error: error.message });
+  }
+}
 }

@@ -7,6 +7,8 @@ export class TurmasController {
     try {
       const filters: TurmaFilter = {
         nome: req.query.nome as string,
+        professor1_id: req.query.professor1_id ? Number(req.query.professor1_id) : undefined,
+        sala_id: req.query.sala_id ? Number(req.query.sala_id) : undefined,
         status: req.query.status as "ativa" | "inativa",
         modalidade_id: req.query.modalidade_id ? Number(req.query.modalidade_id) : undefined,
       };

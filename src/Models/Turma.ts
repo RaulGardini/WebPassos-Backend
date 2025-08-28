@@ -8,14 +8,14 @@ interface TurmaAttributes {
   modalidade_id: number;
   professor1_id?: number;
   professor2_id?: number;
-  professor3_id?: number;
   status: "ativa" | "inativa";
   mensalidade: number;
   data_criacao?: Date;
+  capacidade: number;
 }
 
 interface TurmaCreationAttributes
-  extends Optional<TurmaAttributes, "turma_id" | "professor1_id" | "professor2_id" | "professor3_id" | "data_criacao"> {}
+  extends Optional<TurmaAttributes, "turma_id" | "professor1_id" | "professor2_id" | "data_criacao"> {}
 
 class Turma extends Model<TurmaAttributes, TurmaCreationAttributes>
   implements TurmaAttributes {
@@ -25,10 +25,10 @@ class Turma extends Model<TurmaAttributes, TurmaCreationAttributes>
   public modalidade_id!: number;
   public professor1_id?: number;
   public professor2_id?: number;
-  public professor3_id?: number;
   public status!: "ativa" | "inativa";
   public mensalidade!: number;
   public data_criacao?: Date;
+  public capacidade!: number;
 }
 
 Turma.init(
@@ -58,10 +58,6 @@ Turma.init(
       type: DataTypes.INTEGER,
       allowNull: true,
     },
-    professor3_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
     status: {
       type: DataTypes.ENUM("ativa", "inativa"),
       allowNull: false,
@@ -73,6 +69,10 @@ Turma.init(
     data_criacao: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
+    },
+    capacidade: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
     },
   },
   {
