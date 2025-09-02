@@ -1,0 +1,170 @@
+import { Request, Response } from "express";
+import ServiceMatricula from "../Service/ServiceMatricula";
+
+class MatriculaController {
+  // GET /turmas/:turma_id/alunos-disponiveis
+  static async getAlunosDisponiveis(req: Request, res: Response) {
+    try {
+      const { turma_id } = req.params;
+      const filter = req.query;
+      
+      const alunos = await ServiceMatricula.getAlunosDisponiveis(
+        parseInt(turma_id), 
+        filter
+      );
+      
+      res.json({
+        success: true,
+        data: alunos
+      });
+    } catch (error: any) {
+      if (error.message === "Turma não encontrada") {
+        return res.status(404).json({ 
+          success: false,
+          message: error.message 
+        });
+      }
+      res.status(500).json({ 
+        success: false,
+        message: "Erro ao buscar alunos disponíveis", 
+        error: error.message 
+      });
+    }
+  }
+
+  // GET /turmas/:turma_id/alunos-matriculados
+  static async getAlunosMatriculados(req: Request, res: Response) {
+    try {
+      const { turma_id } = req.params;
+      const filter = req.query;
+      
+      const matriculas = await ServiceMatricula.getAlunosMatriculados(
+        parseInt(turma_id), 
+        filter
+      );
+      
+      res.json({
+        success: true,
+        data: matriculas
+      });
+    } catch (error: any) {
+      if (error.message === "Turma não encontrada") {
+        return res.status(404).json({ 
+          success: false,
+          message: error.message 
+        });
+      }
+      res.status(500).json({ 
+        success: false,
+        message: "Erro ao buscar alunos matriculados", 
+        error: error.message 
+      });
+    }
+  }
+
+  // POST /turmas/:turma_id/matricular
+  static async matricularAluno(req: Request, res: Response) {
+    try {
+      const { turma_id } = req.params;
+      const { aluno_id } = req.body;
+
+      if (!aluno_id) {
+        return res.status(400).json({
+          success: false,
+          message: "aluno_id é obrigatório"
+        });
+      }
+
+      const matricula = await ServiceMatricula.matricularAluno({
+        aluno_id: parseInt(aluno_id),
+        turma_id: parseInt(turma_id)
+      });
+
+      res.status(201).json({
+        success: true,
+        message: "Aluno matriculado com sucesso",
+        data: matricula
+      });
+    } catch (error: any) {
+      if (error.message === "Turma não encontrada" || 
+          error.message === "Aluno não encontrado") {
+        return res.status(404).json({ 
+          success: false,
+          message: error.message 
+        });
+      }
+      if (error.message.includes("já está matriculado") || 
+          error.message.includes("capacidade máxima")) {
+        return res.status(400).json({ 
+          success: false,
+          message: error.message 
+        });
+      }
+      res.status(500).json({ 
+        success: false,
+        message: "Erro ao matricular aluno", 
+        error: error.message 
+      });
+    }
+  }
+
+  // PUT /matriculas/:matricula_id/desativar
+  static async desativarMatricula(req: Request, res: Response) {
+    try {
+      const { matricula_id } = req.params;
+      
+      const resultado = await ServiceMatricula.desativarMatricula(parseInt(matricula_id));
+      
+      res.json({
+        success: true,
+        ...resultado
+      });
+    } catch (error: any) {
+      if (error.message === "Matrícula não encontrada") {
+        return res.status(404).json({ 
+          success: false,
+          message: error.message 
+        });
+      }
+      if (error.message === "Matrícula já está inativa") {
+        return res.status(400).json({ 
+          success: false,
+          message: error.message 
+        });
+      }
+      res.status(500).json({ 
+        success: false,
+        message: "Erro ao desativar matrícula", 
+        error: error.message 
+      });
+    }
+  }
+
+  // GET /turmas/:turma_id/info
+  static async getTurmaInfo(req: Request, res: Response) {
+    try {
+      const { turma_id } = req.params;
+      
+      const turmaInfo = await ServiceMatricula.getTurmaInfo(parseInt(turma_id));
+      
+      res.json({
+        success: true,
+        data: turmaInfo
+      });
+    } catch (error: any) {
+      if (error.message === "Turma não encontrada") {
+        return res.status(404).json({ 
+          success: false,
+          message: error.message 
+        });
+      }
+      res.status(500).json({ 
+        success: false,
+        message: "Erro ao buscar informações da turma", 
+        error: error.message 
+      });
+    }
+  }
+}
+
+export default MatriculaController;
