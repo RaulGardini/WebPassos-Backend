@@ -1,6 +1,6 @@
 import Turma from "../Models/Turma";
 import Horario from "../Models/Horario";
-import TurmaHorario from "../Models/TurmaHorario"; // tabela de junção
+import TurmaHorario from "../Models/HorarioTurma"; // tabela de junção
 import { Op } from "sequelize";
 import { TurmaFilter } from "../Filter/Turma/TurmaFilter";
 

@@ -10,6 +10,7 @@ import RouteSala from "./Routes/RouteSala";
 import RouteHorario from "./Routes/RouteHorario";
 import RouteTurma from "./Routes/RouteTurma";
 import RouteHorarioTurma from "./Routes/RouteHorarioTurma";
+import matriculaRoutes from "./Routes/RouteMatricula";
 
 const app = express();
 app.use(express.json());
@@ -28,6 +29,7 @@ app.use("/salas", RouteSala);
 app.use("/horarios", RouteHorario);
 app.use("/turmas", RouteTurma);
 app.use("/", RouteHorarioTurma); // Para as rotas /turmas/:id/horarios
+app.use("/", matriculaRoutes); // ou app.use("/api", matriculaRoutes) se quiser prefixo
 
 sequelize.authenticate()
   .then(() => console.log("✅ Conectado ao banco com sucesso!"))
