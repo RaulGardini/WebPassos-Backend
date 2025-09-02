@@ -125,6 +125,13 @@ class RepositoryMatricula {
             }
         });
     }
+
+    static async delete(matricula_id: number) {
+    const deletedRows = await Matricula.destroy({
+      where: { matricula_id }
+    });
+    return deletedRows;
+  }
 }
 
 export default RepositoryMatricula;

@@ -108,12 +108,12 @@ class MatriculaController {
     }
   }
 
-  // PUT /matriculas/:matricula_id/desativar
-  static async desativarMatricula(req: Request, res: Response) {
+  // DELETE /matriculas/:matricula_id - ALTERADO PARA DELETE
+  static async deletarMatricula(req: Request, res: Response) {
     try {
       const { matricula_id } = req.params;
       
-      const resultado = await ServiceMatricula.desativarMatricula(parseInt(matricula_id));
+      const resultado = await ServiceMatricula.deletarMatricula(parseInt(matricula_id));
       
       res.json({
         success: true,
@@ -126,15 +126,9 @@ class MatriculaController {
           message: error.message 
         });
       }
-      if (error.message === "Matrícula já está inativa") {
-        return res.status(400).json({ 
-          success: false,
-          message: error.message 
-        });
-      }
       res.status(500).json({ 
         success: false,
-        message: "Erro ao desativar matrícula", 
+        message: "Erro ao deletar matrícula", 
         error: error.message 
       });
     }
