@@ -54,31 +54,24 @@ class ServiceMatricula {
         return await RepositoryMatricula.findById(novaMatricula.matricula_id);
     }
 
-    // Desativar matrícula
-    static async desativarMatricula(matricula_id: number) {
-        // Verificar se matrícula existe
-        const matricula = await RepositoryMatricula.findById(matricula_id);
-        if (!matricula) {
-            throw new Error("Matrícula não encontrada");
-        }
-
-        // Verificar se matrícula já está inativa
-        if (matricula.status === "inativa") {
-            throw new Error("Matrícula já está inativa");
-        }
-
-        // Atualizar status
-        const affectedRows = await RepositoryMatricula.updateStatus(matricula_id, "inativa");
-        if (affectedRows === 0) {
-            throw new Error("Erro ao desativar matrícula");
-        }
-
-        return {
-            message: "Matrícula desativada com sucesso",
-            matricula_id,
-            status: "inativo"
-        };
+    static async deletarMatricula(matricula_id: number) {
+    // Verificar se matrícula existe
+    const matricula = await RepositoryMatricula.findById(matricula_id);
+    if (!matricula) {
+      throw new Error("Matrícula não encontrada");
     }
+
+    // Deletar matrícula
+    const deletedRows = await RepositoryMatricula.delete(matricula_id);
+    if (deletedRows === 0) {
+      throw new Error("Erro ao deletar matrícula");
+    }
+
+    return {
+      message: "Matrícula deletada com sucesso",
+      matricula_id
+    };
+  }
 
     // Buscar dados da turma para exibição
     static async getTurmaInfo(turma_id: number) {
