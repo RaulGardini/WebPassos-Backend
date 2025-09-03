@@ -7,8 +7,6 @@ router.get("/turmas/:turma_id/alunos-disponiveis", MatriculaController.getAlunos
 router.get("/turmas/:turma_id/alunos-matriculados", MatriculaController.getAlunosMatriculados);
 router.get("/turmas/:turma_id/info", MatriculaController.getTurmaInfo);
 router.post("/turmas/:turma_id/matricular", MatriculaController.matricularAluno);
-
-// ALTERADO - Rota para deletar matrícula
-router.delete("/matriculas/:matricula_id", MatriculaController.deletarMatricula);
+router.delete("/:matricula_id", MatriculaController.deletarMatricula);
 
 export default router;

@@ -1,0 +1,113 @@
+DOCUMENTAÇÃO API WebPassos
+
+Usuario
+
+🔵 GET /usuarios - lista todos os usuarios
+
+🟢 POST /usuarios/login - verifica se o login e senha mandado corresponde com algum do banco de dados
+
+Alunos
+
+🔵 GET /alunos - lista todos os alunos
+
+🔵 GET /alunos/filter - lista todos os alunos com filtro
+
+🔵 GET /alunos/:id - lista aluno por id
+
+🟢 POST /alunos - salva um novo aluno
+
+🟡 PUT /alunos/:id - atualiza um aluno
+
+🔴 DELETE /alunos/:id - deleta um aluno
+
+Colaboradores
+
+🔵 GET /colaboradores - lista todos os colaboradores com filtro
+
+🔵 GET /colaboradores/:id - lista colaboradores por id
+
+🟢 POST /colaboradores - salva um novo colaborador
+
+🟡 PUT /colaboradores/:id - atualiza um colaborador
+
+🔴 DELETE /colaboradores/:id - deleta um colaborador
+
+Horarios
+
+🔵 GET /horarios - lista todos os horarios
+
+🔵 GET /horarios/:id - lista horarios por id
+
+🔵 GET /horarios/disponiveis-para-turma/:turma_id - lista horarios disponiveis para certa turma
+
+🟢 POST /horarios - salva um novo horarios
+
+🟡 PUT /horarios/:id - atualiza um horarios
+
+🔴 DELETE /horarios/:id - deleta um horarios
+
+HorarioTurma
+
+🟢 POST /horarioTurma/turmas/:id/horarios - salva um novo horarios para a turma
+
+🔴 DELETE /horarioTurma/turmas/:id/horarios - deleta todos os horarios da turma
+
+Matricula
+
+🔵 GET /matricula/turmas/:turma_id/alunos-disponiveis - lista todos os alunos que não estão matriculados na turma
+
+🔵 GET /matricula/turmas/:turma_id/alunos-matriculados - lista todos os alunos que estão matriculados na turma
+
+🔵 GET /matricula/turmas/:turma_id/info - mostra certas informaçoes de uma turma
+
+🟢 POST /matricula/turmas/:turma_id/matricular - matricula um aluno a turma
+
+🔴 DELETE /matricula/matricula_id - deleta uma matricula
+
+Modalidade
+
+🔵 GET /modalidades - lista todas as modalidades com filtro
+
+🔵 GET /modalidades/:id - lista modalidade por id
+
+🟢 POST /modalidades - salva uma nova modalidade
+
+🟡 PUT /modalidades/:id - atualiza uma modalidade
+
+🔴 DELETE /modalidades/:id - deleta uma modalidade
+
+Sala
+
+🔵 GET /salas - lista todas as salas com filtro
+
+🔵 GET /salas/:id - lista sala por id
+
+🟢 POST /salas - salva uma nova sala
+
+🟡 PUT /salas/:id - atualiza uma sala
+
+🔴 DELETE /salas/:id - deleta uma sala
+
+Turmas
+
+🔵 GET /turmas - lista todas as turmas com filtro
+
+🔵 GET /turmas/:id - lista turma por id
+
+🟢 POST /turmas - salva uma nova turma
+
+🟡 PUT /turmas/:id - atualiza uma turma
+
+🔴 DELETE /turmas/:id - deleta uma turma
+
+Cargo
+
+🔵 GET /cargos - lista todos os cargos com filtro
+
+🔵 GET /cargos/:id - lista cargo por id
+
+🟢 POST /cargos - salva um novo cargo
+
+🟡 PUT /cargos/:id - atualiza um cargo
+
+🔴 DELETE /cargos/:id - deleta um cargo

@@ -28,8 +28,8 @@ app.use("/modalidades", RouteModalidade);
 app.use("/salas", RouteSala);
 app.use("/horarios", RouteHorario);
 app.use("/turmas", RouteTurma);
-app.use("/", RouteHorarioTurma); // Para as rotas /turmas/:id/horarios
-app.use("/", matriculaRoutes); // ou app.use("/api", matriculaRoutes) se quiser prefixo
+app.use("/horarioTurma", RouteHorarioTurma);
+app.use("/matricula", matriculaRoutes);
 
 sequelize.authenticate()
   .then(() => console.log("✅ Conectado ao banco com sucesso!"))
