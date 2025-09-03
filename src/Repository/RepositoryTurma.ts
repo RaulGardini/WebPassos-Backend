@@ -58,4 +58,37 @@ export class TurmasRepository {
   static async delete(turma_id: number) {
     return await Turma.destroy({ where: { turma_id } });
   }
+
+  static async findAulasPorDia(diaSemana: string) {
+    return await Turma.findAll({
+      where: {
+        status: 'ativa' // apenas turmas ativas
+      },
+      include: [
+        {
+          model: Horario,
+          as: "horarios",
+          where: {
+            dia_semana: {
+              [Op.iLike]: `%${diaSemana}%` // busca case-insensitive
+            }
+          },
+          attributes: ["horario_id", "dia_semana", "horario"],
+          through: { attributes: [] } // esconde a tabela pivot
+        }
+      ],
+      attributes: [
+        "turma_id", 
+        "nome", 
+        "sala_id", 
+        "modalidade_id", 
+        "professor1_id", 
+        "professor2_id", 
+        "capacidade"
+      ],
+      order: [
+        [{ model: Horario, as: "horarios" }, "horario", "ASC"] // ordena por horário
+      ]
+    });
+  }
 }
