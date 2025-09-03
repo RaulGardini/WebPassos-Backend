@@ -58,4 +58,38 @@ export class TurmasController {
       return res.status(400).json({ error: error.message });
     }
   }
+
+  static async getAulasHoje(req: Request, res: Response) {
+    try {
+      const aulas = await TurmasService.getAulasHoje();
+      
+      // Formatando a resposta para melhor legibilidade
+      const aulasFormatadas = aulas.map((turma: any) => ({
+        turma_id: turma.turma_id,
+        nome_turma: turma.nome,
+        sala_id: turma.sala_id,
+        modalidade_id: turma.modalidade_id,
+        professor1_id: turma.professor1_id,
+        professor2_id: turma.professor2_id,
+        capacidade: turma.capacidade,
+        horarios: turma.horarios ? turma.horarios.map((h: any) => ({
+          horario_id: h.horario_id,
+          dia_semana: h.dia_semana,
+          horario: h.horario
+        })) : []
+      }));
+
+      return res.json({
+        data: new Date().toLocaleDateString('pt-BR'),
+        total_aulas: aulasFormatadas.length,
+        aulas: aulasFormatadas
+      });
+    } catch (error: any) {
+      console.error('Erro ao buscar aulas de hoje:', error);
+      return res.status(500).json({ 
+        error: 'Erro interno do servidor',
+        details: error.message 
+      });
+    }
+  }
 }

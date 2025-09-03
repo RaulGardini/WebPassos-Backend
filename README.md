@@ -92,6 +92,8 @@ Turmas
 
 🔵 GET /turmas - lista todas as turmas com filtro
 
+🔵 GET /turmas/hoje - lista todas que terão aula no dia de hoje
+
 🔵 GET /turmas/:id - lista turma por id
 
 🟢 POST /turmas - salva uma nova turma

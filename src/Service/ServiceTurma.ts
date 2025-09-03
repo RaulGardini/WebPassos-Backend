@@ -30,4 +30,14 @@ export class TurmasService {
 
     return { message: "Turma deletada com sucesso" };
   }
+
+  static async getAulasHoje() {
+    const hoje = new Date();
+    const diasSemana = [
+      'domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'
+    ];
+    const diaHoje = diasSemana[hoje.getDay()];
+    
+    return await TurmasRepository.findAulasPorDia(diaHoje);
+  }
 }
