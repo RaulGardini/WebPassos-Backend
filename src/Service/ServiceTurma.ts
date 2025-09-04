@@ -37,7 +37,7 @@ export class TurmasService {
       'domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'
     ];
     const diaHoje = diasSemana[hoje.getDay()];
-    
+
     return await TurmasRepository.findAulasPorDia(diaHoje);
   }
 }

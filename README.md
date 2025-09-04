@@ -113,3 +113,7 @@ Cargo
 🟡 PUT /cargos/:id - atualiza um cargo
 
 🔴 DELETE /cargos/:id - deleta um cargo
+
+Dashboard
+
+🔵 GET /dashboard/escola/info - retorna todas as informaçoes da escola
