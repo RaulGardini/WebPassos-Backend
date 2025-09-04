@@ -78,12 +78,12 @@ export class TurmasRepository {
         }
       ],
       attributes: [
-        "turma_id", 
-        "nome", 
-        "sala_id", 
-        "modalidade_id", 
-        "professor1_id", 
-        "professor2_id", 
+        "turma_id",
+        "nome",
+        "sala_id",
+        "modalidade_id",
+        "professor1_id",
+        "professor2_id",
         "capacidade"
       ],
       order: [
