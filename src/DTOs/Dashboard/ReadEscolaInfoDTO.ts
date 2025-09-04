@@ -1,4 +1,4 @@
-export interface ReadOcupacaoTurmasDTO {
+export interface ReadEscolaInfoDTO {
   capacidade_total: number;
   matriculas_ativas: number;
   vagas_disponiveis: number;

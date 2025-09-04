@@ -1,8 +1,8 @@
 import { RepositoryDashboard } from "../Repository/RepositoryDashboard";
-import { ReadOcupacaoTurmasDTO } from "../DTOs/Turma/ReadOcupacaoTurmasDTO";
+import { ReadEscolaInfoDTO } from "../DTOs/Dashboard/ReadEscolaInfoDTO";
 
 export class ServiceDashboard {
-    static async getInfoEscola(): Promise<ReadOcupacaoTurmasDTO> {
+    static async getInfoEscola(): Promise<ReadEscolaInfoDTO> {
         try {
           const dados = await RepositoryDashboard.getInfoEscola();
     

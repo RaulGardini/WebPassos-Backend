@@ -11,7 +11,7 @@ import RouteHorario from "./Routes/RouteHorario";
 import RouteTurma from "./Routes/RouteTurma";
 import RouteHorarioTurma from "./Routes/RouteHorarioTurma";
 import RouteMatricula from "./Routes/RouteMatricula";
-import RouteDashboard from "./Routes/RouteDashboard"
+import RouteDashboard from "./Routes/RouteDashboard";
 
 const app = express();
 app.use(express.json());
