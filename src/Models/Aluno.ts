@@ -49,12 +49,11 @@ Aluno.init(
     },
     email: {
       type: DataTypes.STRING(255),
-      allowNull: false,
+      allowNull: true,
     },
     cpf: {
       type: DataTypes.STRING(15),
-      allowNull: false,
-      unique: true,
+      allowNull: true
     },
     telefone: {
       type: DataTypes.STRING(15),

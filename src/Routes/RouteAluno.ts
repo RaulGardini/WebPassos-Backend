@@ -4,7 +4,6 @@ import AlunosController from "../Controllers/alunosController";
 const router = Router();
 
 router.get("/", AlunosController.getAllAlunos);
-router.get("/filter", AlunosController.getAllAlunosWithFilters);
 router.get("/:id", AlunosController.getAlunoById);
 router.post("/", AlunosController.createAluno);
 router.put("/:id", AlunosController.updateAluno);

@@ -13,5 +13,6 @@ export interface ReadEscolaInfoDTO {
     total_salas: number;
     total_modalidades: number;
     total_cargos: number;
+    total_fornecedores: number;
   };
 }

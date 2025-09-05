@@ -117,3 +117,15 @@ Cargo
 Dashboard
 
 🔵 GET /dashboard/escola/info - retorna todas as informaçoes da escola
+
+Fornecedor
+
+🔵 GET /fornecedores - lista todos os fornecedores com filtro
+
+🔵 GET /fornecedores/:id - lista fornecedor por id
+
+🟢 POST /fornecedores - salva um novo fornecedor
+
+🟡 PUT /fornecedores/:id - atualiza um fornecedor
+
+🔴 DELETE /fornecedores/:id - deleta um fornecedor

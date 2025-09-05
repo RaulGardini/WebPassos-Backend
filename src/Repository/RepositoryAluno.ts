@@ -1,19 +1,38 @@
 import Alunos from "../Models/Aluno";
 import { Op } from "sequelize";
+import { AlunoFilter } from "../Filter/Aluno/AlunoFilter";
 
 class AlunosRepository {
-  static async findAll() {
-    return await Alunos.findAll();
+  static async findAll(filter?: AlunoFilter) {
+    const where: any = {};
+
+    if (filter?.nome) {
+      where.nome = { [Op.iLike]: `%${filter.nome}%` };
+    }
+    if (filter?.email) {
+      where.email = { [Op.iLike]: `%${filter.email}%` };
+    }
+    if (filter?.cpf) {
+      where.cpf = filter.cpf;
+    }
+    if (filter?.telefone) {
+      where.telefone = { [Op.iLike]: `%${filter.telefone}%` };
+    }
+    if (filter?.sexo) {
+      where.sexo = filter.sexo;
+    }
+    if (filter?.cidade) {
+      where.cidade = { [Op.iLike]: `%${filter.cidade}%` };
+    }
+    if (filter?.responsavel_financeiro) {
+      where.responsavel_financeiro = { [Op.iLike]: `%${filter.responsavel_financeiro}%` };
+    }
+
+    return await Alunos.findAll({ where });
   }
 
   static async findById(aluno_id: number) {
     return await Alunos.findByPk(aluno_id);
-  }
-
-  static async findByFilters(whereConditions: any) {
-    return await Alunos.findAll({
-      where: whereConditions
-    });
   }
 
   static async create(alunoData: any) {

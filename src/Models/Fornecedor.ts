@@ -32,7 +32,7 @@ Fornecedor.init(
         },
         email: {
             type: DataTypes.STRING(150),
-            allowNull: false,
+            allowNull: true,
         },
         telefone: {
             type: DataTypes.STRING(20),
