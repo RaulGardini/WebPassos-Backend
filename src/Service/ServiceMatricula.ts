@@ -13,7 +13,90 @@ class ServiceMatricula {
         return await RepositoryMatricula.findAlunosMatriculados(turma_id, filter);
     }
 
-    // Matricular aluno em uma turma
+    // NOVOS MÉTODOS PARA TURMAS POR ALUNO
+    // Buscar turmas onde o aluno está matriculado
+    static async getTurmasDoAluno(aluno_id: number) {
+        // Verificar se aluno existe
+        const aluno = await RepositoryMatricula.findAlunoById(aluno_id);
+        if (!aluno) {
+            throw new Error("Aluno não encontrado");
+        }
+
+        return await RepositoryMatricula.findTurmasDoAluno(aluno_id);
+    }
+
+    // Buscar turmas disponíveis para matrícula do aluno
+    static async getTurmasDisponiveis(aluno_id: number) {
+        // Verificar se aluno existe
+        const aluno = await RepositoryMatricula.findAlunoById(aluno_id);
+        if (!aluno) {
+            throw new Error("Aluno não encontrado");
+        }
+
+        const turmasDisponiveis = await RepositoryMatricula.findTurmasDisponiveis(aluno_id);
+        
+        // Adicionar informações de capacidade para cada turma
+        const turmasComInfo = await Promise.all(
+            turmasDisponiveis.map(async (turma) => {
+                const totalMatriculas = await RepositoryMatricula.countMatriculasAtivasNaTurma(turma.turma_id);
+                return {
+                    ...turma.toJSON(),
+                    matriculas_ativas: totalMatriculas,
+                    vagas_disponiveis: turma.capacidade - totalMatriculas,
+                    turma_lotada: totalMatriculas >= turma.capacidade
+                };
+            })
+        );
+
+        return turmasComInfo;
+    }
+
+    // Matricular aluno em uma turma específica (novo endpoint)
+    static async matricularAlunoNaTurma(aluno_id: number, turma_id: number) {
+        // Verificar se aluno existe
+        const aluno = await RepositoryMatricula.findAlunoById(aluno_id);
+        if (!aluno) {
+            throw new Error("Aluno não encontrado");
+        }
+
+        // Verificar se turma existe
+        const turma = await RepositoryMatricula.findTurmaById(turma_id);
+        if (!turma) {
+            throw new Error("Turma não encontrada");
+        }
+
+        // Verificar se aluno já está matriculado na turma
+        const matriculaExistente = await RepositoryMatricula.findMatriculaAtivaByAlunoTurma(aluno_id, turma_id);
+        if (matriculaExistente) {
+            throw new Error("Aluno já está matriculado nesta turma");
+        }
+
+        // Verificar capacidade da turma
+        const totalMatriculas = await RepositoryMatricula.countMatriculasAtivasNaTurma(turma_id);
+        if (totalMatriculas >= turma.capacidade) {
+            throw new Error("Turma já está com capacidade máxima");
+        }
+
+        // Gerar número da matrícula
+        const numeroMatricula = await RepositoryMatricula.generateNumeroMatricula();
+
+        // Criar matrícula
+        const matriculaData = {
+            aluno_id,
+            turma_id,
+            numero_matricula: numeroMatricula,
+            valor_matricula: turma.mensalidade,
+            data_matricula: new Date(),
+            status: "ativa" as const
+        };
+
+        const novaMatricula = await RepositoryMatricula.create(matriculaData);
+
+        // Retornar matrícula com dados do aluno e turma
+        return await RepositoryMatricula.findById(novaMatricula.matricula_id);
+    }
+
+    // Matricular aluno em uma turma (método original)
     static async matricularAluno(data: CreateMatriculaDTO) {
         const { aluno_id, turma_id } = data;
 
@@ -55,23 +138,23 @@ class ServiceMatricula {
     }
 
     static async deletarMatricula(matricula_id: number) {
-    // Verificar se matrícula existe
-    const matricula = await RepositoryMatricula.findById(matricula_id);
-    if (!matricula) {
-      throw new Error("Matrícula não encontrada");
-    }
+        // Verificar se matrícula existe
+        const matricula = await RepositoryMatricula.findById(matricula_id);
+        if (!matricula) {
+            throw new Error("Matrícula não encontrada");
+        }
 
-    // Deletar matrícula
-    const deletedRows = await RepositoryMatricula.delete(matricula_id);
-    if (deletedRows === 0) {
-      throw new Error("Erro ao deletar matrícula");
-    }
+        // Deletar matrícula
+        const deletedRows = await RepositoryMatricula.delete(matricula_id);
+        if (deletedRows === 0) {
+            throw new Error("Erro ao deletar matrícula");
+        }
 
-    return {
-      message: "Matrícula deletada com sucesso",
-      matricula_id
-    };
-  }
+        return {
+            message: "Matrícula deletada com sucesso",
+            matricula_id
+        };
+    }
 
     // Buscar dados da turma para exibição
     static async getTurmaInfo(turma_id: number) {

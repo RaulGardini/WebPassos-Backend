@@ -55,6 +55,48 @@ class RepositoryMatricula {
         });
     }
 
+    static async findTurmasDoAluno(aluno_id: number) {
+        return await Matricula.findAll({
+            where: {
+                aluno_id,
+                status: "ativa"
+            },
+            include: [{
+                model: Turma,
+                as: "turma"
+            }],
+            order: [["data_matricula", "ASC"]]
+        });
+    }
+
+    static async findTurmasDisponiveis(aluno_id: number) {
+        // Buscar IDs das turmas onde o aluno já está matriculado
+        const turmasMatriculadas = await Matricula.findAll({
+            where: {
+                aluno_id,
+                status: "ativa"
+            },
+            attributes: ["turma_id"]
+        });
+
+        const idsMatriculadas = turmasMatriculadas.map(m => m.turma_id);
+
+        // Buscar turmas que NÃO estão na lista de matriculadas
+        const whereConditions: any = {};
+        if (idsMatriculadas.length > 0) {
+            whereConditions.turma_id = { [Op.notIn]: idsMatriculadas };
+        }
+
+        return await Turma.findAll({
+            where: whereConditions,
+            order: [["nome", "ASC"]]
+        });
+    }
+
+    static async findAlunoById(aluno_id: number) {
+        return await Aluno.findByPk(aluno_id);
+    }
+
     // Criar matrícula
     static async create(matriculaData: any) {
         return await Matricula.create(matriculaData);

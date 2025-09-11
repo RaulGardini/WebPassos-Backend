@@ -62,7 +62,100 @@ class MatriculaController {
     }
   }
 
-  // POST /turmas/:turma_id/matricular
+  // NOVOS ENDPOINTS PARA TURMAS POR ALUNO
+  // GET /alunos/:aluno_id/turmas-matriculadas
+  static async getTurmasDoAluno(req: Request, res: Response) {
+    try {
+      const { aluno_id } = req.params;
+      
+      const turmas = await ServiceMatricula.getTurmasDoAluno(parseInt(aluno_id));
+      
+      res.json({
+        success: true,
+        data: turmas,
+        total: turmas.length
+      });
+    } catch (error: any) {
+      if (error.message === "Aluno não encontrado") {
+        return res.status(404).json({ 
+          success: false,
+          message: error.message 
+        });
+      }
+      res.status(500).json({ 
+        success: false,
+        message: "Erro ao buscar turmas do aluno", 
+        error: error.message 
+      });
+    }
+  }
+
+  // GET /alunos/:aluno_id/turmas-disponiveis
+  static async getTurmasDisponiveis(req: Request, res: Response) {
+    try {
+      const { aluno_id } = req.params;
+      
+      const turmas = await ServiceMatricula.getTurmasDisponiveis(parseInt(aluno_id));
+      
+      res.json({
+        success: true,
+        data: turmas,
+        total: turmas.length
+      });
+    } catch (error: any) {
+      if (error.message === "Aluno não encontrado") {
+        return res.status(404).json({ 
+          success: false,
+          message: error.message 
+        });
+      }
+      res.status(500).json({ 
+        success: false,
+        message: "Erro ao buscar turmas disponíveis", 
+        error: error.message 
+      });
+    }
+  }
+
+  // POST /alunos/:aluno_id/matricular/:turma_id
+  static async matricularAlunoNaTurma(req: Request, res: Response) {
+    try {
+      const { aluno_id, turma_id } = req.params;
+
+      const matricula = await ServiceMatricula.matricularAlunoNaTurma(
+        parseInt(aluno_id),
+        parseInt(turma_id)
+      );
+
+      res.status(201).json({
+        success: true,
+        message: "Aluno matriculado com sucesso na turma",
+        data: matricula
+      });
+    } catch (error: any) {
+      if (error.message === "Turma não encontrada" || 
+          error.message === "Aluno não encontrado") {
+        return res.status(404).json({ 
+          success: false,
+          message: error.message 
+        });
+      }
+      if (error.message.includes("já está matriculado") || 
+          error.message.includes("capacidade máxima")) {
+        return res.status(400).json({ 
+          success: false,
+          message: error.message 
+        });
+      }
+      res.status(500).json({ 
+        success: false,
+        message: "Erro ao matricular aluno na turma", 
+        error: error.message 
+      });
+    }
+  }
+
+  // POST /turmas/:turma_id/matricular (método original)
   static async matricularAluno(req: Request, res: Response) {
     try {
       const { turma_id } = req.params;
@@ -108,7 +201,7 @@ class MatriculaController {
     }
   }
 
-  // DELETE /matriculas/:matricula_id - ALTERADO PARA DELETE
+  // DELETE /matriculas/:matricula_id
   static async deletarMatricula(req: Request, res: Response) {
     try {
       const { matricula_id } = req.params;
