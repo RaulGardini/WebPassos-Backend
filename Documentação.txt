@@ -10,7 +10,7 @@ Alunos
 
 🔵 GET /alunos - lista todos os alunos
 
-🔵 GET /alunos/filter - lista todos os alunos com filtro
+🔵 GET /alunos/filter - lista todos os alunos com filtro e com paginação
 
 🔵 GET /alunos/:id - lista aluno por id
 

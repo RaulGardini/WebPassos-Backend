@@ -1,9 +1,10 @@
 import Alunos from "../Models/Aluno";
 import { Op } from "sequelize";
 import { AlunoFilter } from "../Filter/Aluno/AlunoFilter";
+import { PaginationOptions, PaginatedResult } from "../Pagination/Pagination";
 
 class AlunosRepository {
-  static async findAll(filter?: AlunoFilter) {
+  static async findAll(filter?: AlunoFilter, pagination?: PaginationOptions): Promise<PaginatedResult<any> | any[]> {
     const where: any = {};
 
     if (filter?.nome) {
@@ -28,7 +29,34 @@ class AlunosRepository {
       where.responsavel_financeiro = { [Op.iLike]: `%${filter.responsavel_financeiro}%` };
     }
 
-    return await Alunos.findAll({ where });
+    // Se não há paginação, retorna todos os resultados
+    if (!pagination) {
+      return await Alunos.findAll({ where });
+    }
+
+    // Com paginação
+    const offset = (pagination.page - 1) * pagination.limit;
+    
+    const result = await Alunos.findAndCountAll({
+      where,
+      limit: pagination.limit,
+      offset,
+      order: [['aluno_id', 'ASC']]
+    });
+
+    const totalPages = Math.ceil(result.count / pagination.limit);
+
+    return {
+      data: result.rows,
+      pagination: {
+        currentPage: pagination.page,
+        totalPages,
+        totalItems: result.count,
+        itemsPerPage: pagination.limit,
+        hasNext: pagination.page < totalPages,
+        hasPrev: pagination.page > 1
+      }
+    };
   }
 
   static async findById(aluno_id: number) {
