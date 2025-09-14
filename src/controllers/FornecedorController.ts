@@ -3,14 +3,14 @@ import ServiceFornecedor from "../Service/ServiceFornecedor";
 import { FornecedorFilter } from "../Filter/Fornecedor/FornecedorFilter";
 
 class FornecedorController {
-    static async getAllFornecedores(req: Request, res: Response) {
+  static async getAllFornecedores(req: Request, res: Response) {
     try {
       const filters: FornecedorFilter = {
-              nome: req.query.nome as string,
-              email: req.query.email as string,
-              telefone: req.query.telefone as string
-            };
-      
+        nome: req.query.nome as string,
+        email: req.query.email as string,
+        telefone: req.query.telefone as string
+      };
+
       const fornecedor = await ServiceFornecedor.getAllFornecedores(filters);
       res.json(fornecedor);
     } catch (error) {
@@ -19,14 +19,14 @@ class FornecedorController {
   }
 
   static async getFornecedorById(req: Request, res: Response) {
-      try {
-        const { id } = req.params;
-        const fornecedor = await ServiceFornecedor.getFornecedorById(Number(id));
-        return res.json(fornecedor);
-      } catch (error: any) {
-        return res.status(404).json({ error: error.message });
-      }
+    try {
+      const { id } = req.params;
+      const fornecedor = await ServiceFornecedor.getFornecedorById(Number(id));
+      return res.json(fornecedor);
+    } catch (error: any) {
+      return res.status(404).json({ error: error.message });
     }
+  }
 
   static async createFornecedor(req: Request, res: Response) {
     try {

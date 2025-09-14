@@ -22,8 +22,7 @@ class ServiceFornecedor {
     }
 
     static async deleteFornecedor(fornecedor_id: number) {
-        const deleted = await RepositoryFornecedor.delete(fornecedor_id);
-        return { message: "Fornecedor deletado com sucesso" };
+        return await RepositoryFornecedor.delete(fornecedor_id);
     }
 }
 
