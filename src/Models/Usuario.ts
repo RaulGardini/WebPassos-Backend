@@ -5,6 +5,8 @@ interface UsuarioAttributes {
   id: number;
   login: string;
   senha: string;
+  nome: string;
+  tipo: 'Professor' | 'Admin';
 }
 
 interface UsuarioCreationAttributes extends Optional<UsuarioAttributes, "id"> {}
@@ -14,6 +16,8 @@ class Usuario extends Model<UsuarioAttributes, UsuarioCreationAttributes>
   public id!: number;
   public login!: string;
   public senha!: string;
+  public nome!: string;
+  public tipo!: 'Professor' | 'Admin';
 }
 
 Usuario.init(
@@ -32,6 +36,15 @@ Usuario.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    nome: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    tipo: {
+      type: DataTypes.ENUM('Professor', 'Admin'),
+      allowNull: false,
+      defaultValue: 'Professor'
+    }
   },
   {
     sequelize,

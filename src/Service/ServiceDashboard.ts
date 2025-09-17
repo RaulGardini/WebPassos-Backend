@@ -45,7 +45,8 @@ export class ServiceDashboard {
               total_salas: dados.total_salas,
               total_modalidades: dados.total_modalidades,
               total_cargos: dados.total_cargos,
-              total_fornecedores: dados.total_fornecedores
+              total_fornecedores: dados.total_fornecedores,
+              total_usuarios: dados.total_usuarios
             }
           };
     

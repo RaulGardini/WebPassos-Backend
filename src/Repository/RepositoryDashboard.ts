@@ -9,6 +9,7 @@ import Modalidade from "../Models/Modalidade";
 import Cargo from "../Models/Cargo";
 import Fornecedor from "../Models/Fornecedor";
 import sequelize from "../config/database";
+import Usuario from "../Models/Usuario";
 import { Op } from "sequelize";
 
 export class RepositoryDashboard {
@@ -88,6 +89,13 @@ export class RepositoryDashboard {
         raw: true
       }) as any;
 
+      const totalUsuariosResult = await Usuario.findOne({
+        attributes: [
+          [sequelize.fn('COUNT', sequelize.col('id')), 'total_usuarios']
+        ],
+        raw: true
+      }) as any;
+
       // Debug para ver os nomes dos campos retornados
       console.log('capacidadeResult:', capacidadeResult);
       console.log('matriculasResult:', matriculasResult);
@@ -102,6 +110,7 @@ export class RepositoryDashboard {
       const totalModalidades = Number(totalModalidadesResult?.total_modalidades || totalModalidadesResult?.['COUNT(`modalidade_id`)'] || 0);
       const totalCargos = Number(totalCargosResult?.total_cargos || totalCargosResult?.['COUNT(`cargo_id`)'] || 0);
       const totalFornecedores = Number(totalFornecedoresResult?.total_fornecedoores || totalFornecedoresResult?.['COUNT(`fornecedor_id`)'] || 0);
+      const totalUsuarios = Number(totalUsuariosResult?.total_usuarios || totalUsuariosResult?.['COUNT(`id`)'] || 0);
 
       return {
         capacidade_total: capacidadeTotal,
@@ -112,7 +121,8 @@ export class RepositoryDashboard {
         total_salas: totalSalas,
         total_modalidades: totalModalidades,
         total_cargos: totalCargos,
-        total_fornecedores: totalFornecedores
+        total_fornecedores: totalFornecedores,
+        total_usuarios: totalUsuarios,
       };
 
     } catch (error) {
