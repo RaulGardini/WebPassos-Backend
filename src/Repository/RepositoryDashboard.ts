@@ -96,10 +96,6 @@ export class RepositoryDashboard {
         raw: true
       }) as any;
 
-      // Debug para ver os nomes dos campos retornados
-      console.log('capacidadeResult:', capacidadeResult);
-      console.log('matriculasResult:', matriculasResult);
-
       // Corrigir os nomes dos campos baseado no retorno real
       const capacidadeTotal = Number(capacidadeResult?.capacidade_total || capacidadeResult?.['SUM(`capacidade`)'] || 0);
       const matriculasAtivas = Number(matriculasResult?.matriculas_ativas || matriculasResult?.['COUNT(`matricula_id`)'] || 0);

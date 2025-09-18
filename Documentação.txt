@@ -4,7 +4,17 @@ Usuario
 
 🔵 GET /usuarios - lista todos os usuarios
 
+🔵 GET /usuarios/colaboradores - lista todos os colaboradores
+
+🔵 GET /usuarios/colaboradores-sem-login - lista todos os colaboradores sem login
+
 🟢 POST /usuarios/login - verifica se o login e senha mandado corresponde com algum do banco de dados
+
+🟢 POST /usuarios/criar-login-colaborador - cria um login
+
+🟡 PUT /usuarios/:id - atualiza um usuario
+
+🔴 DELETE /usuarios/:id - deleta um uusario
 
 Alunos
 
