@@ -2,6 +2,7 @@ import RepositoryChamada from "../Repository/RepositoryChamada";
 import Turma from "../Models/Turma";
 import RepositoryHorario from "../Repository/RepositoryHorario";
 import { HorariosTurmasRepository } from "../Repository/RepositoryHorarioTurma";
+import RepositorySala from "../Repository/RepositorySala"
 
 interface GerarChamadasDTO {
     colaborador_id: number;
@@ -62,10 +63,6 @@ class ServiceChamada {
                 };
 
                 const diaSemanaNumero = diasSemana[horario.dia_semana.toLowerCase().trim()];
-                if (diaSemanaNumero === undefined) {
-                    console.warn(`Dia da semana não reconhecido: ${horario.dia_semana}`);
-                    continue;
-                }
 
                 // Gerar datas para todos os dias deste tipo no mês
                 const datasAulas = ServiceChamada.gerarDatasDoMes(ano, mes, diaSemanaNumero, horaInicio.trim());
@@ -136,18 +133,13 @@ class ServiceChamada {
             const ano = hoje.getFullYear();
             const chamadasDoMes = await RepositoryChamada.verificarChamadasExistentes(colaborador_id, mes, ano);
 
-            const message = chamadasDoMes.length > 0 
+            const message = chamadasDoMes.length > 0
                 ? "Nenhuma chamada encontrada para hoje"
                 : "Nenhuma chamada encontrada para esse mês";
 
             return {
                 message: message,
                 data: dataFormatada,
-                debug: {
-                    colaborador_id: colaborador_id,
-                    chamadas_no_mes: chamadasDoMes.length
-                },
-                chamadas: []
             };
         }
 
@@ -160,7 +152,7 @@ class ServiceChamada {
 
             // Buscar os horários da turma para pegar o horário correto
             const horariosTurma = await HorariosTurmasRepository.findByTurmaId(chamada.turma_id);
-            
+
             // Determinar qual é o dia da semana da aula
             const diasSemana = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
             const diaDaAula = diasSemana[dataAula.getDay()];
@@ -187,39 +179,26 @@ class ServiceChamada {
                 }
             }
 
+            let nome_sala = 'Sala não encontrada';
+            if (turma?.sala_id) {
+                const sala = await RepositorySala.findById(turma.sala_id);
+                if (sala) nome_sala = sala.nome_sala;
+            }
+
             chamadasDetalhadas.push({
                 chamada_id: chamada.chamada_id,
                 turma_id: chamada.turma_id,
                 turma_nome: turma?.nome || 'Turma não encontrada',
                 colaborador_id: chamada.colaborador_id,
                 data_aula: chamada.data_aula,
-                data_formatada: dataAula.toLocaleDateString('pt-BR'),
-                horario: horarioFormatado, // Agora vem do horário configurado da turma
-                dia_semana: diaDaAula,
-                // Informações adicionais do horário
-                horario_detalhes: horarioCorreto ? {
-                    horario_id: horarioCorreto.horario_id,
-                    dia_semana: horarioCorreto.dia_semana,
-                    horario_completo: horarioCorreto.horario
-                } : null,
-                // Debug info
-                debug: {
-                    data_original: chamada.data_aula,
-                    data_processada: dataAula.toISOString(),
-                    dia_semana_calculado: diaDaAula,
-                    horarios_encontrados: horariosTurma.length
-                }
+                horario: horarioFormatado,
+                nome_sala: nome_sala
             });
         }
 
         return {
             message: `${chamadas.length} aula(s) encontrada(s) para ${dataFormatada}`,
             data: dataFormatada,
-            total_aulas: chamadas.length,
-            debug: {
-                colaborador_id: colaborador_id,
-                total_encontrado: chamadas.length
-            },
             chamadas: chamadasDetalhadas
         };
     }

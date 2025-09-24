@@ -68,13 +68,11 @@ class RepositoryChamada {
     static async getChamadasDoDia(colaborador_id: number, data?: Date) {
         const hoje = data || new Date();
 
-        // Pegar data de hoje no formato exato da tabela (YYYY-MM-DD)
         const ano = hoje.getFullYear();
-        const mes = String(hoje.getMonth() + 1).padStart(2, '0'); // +1 porque getMonth() retorna 0-11
+        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
         const dia = String(hoje.getDate()).padStart(2, '0');
         const dataHoje = `${ano}-${mes}-${dia}`;
 
-        // Primeiro, vamos ver TODAS as chamadas do colaborador
         const todasChamadas = await Chamada.findAll({
             where: {
                 colaborador_id: colaborador_id
@@ -82,20 +80,11 @@ class RepositoryChamada {
             order: [['data_aula', 'ASC']]
         });
 
-        console.log('=== TODAS AS CHAMADAS DO COLABORADOR ===');
-        todasChamadas.forEach(chamada => {
-            const dataChamada = new Date(chamada.data_aula);
-            const dataChamadaStr = dataChamada.toISOString().split('T')[0];
-            console.log(`ID: ${chamada.chamada_id}, Data: ${dataChamadaStr}, Original: ${chamada.data_aula}`);
-        });
-
-        // Agora filtrar apenas as de hoje
         const chamadasHoje = todasChamadas.filter(chamada => {
             const dataChamada = new Date(chamada.data_aula);
             const dataChamadaStr = dataChamada.toISOString().split('T')[0];
             const ehHoje = dataChamadaStr === dataHoje;
 
-            console.log(`Comparando: ${dataChamadaStr} === ${dataHoje} = ${ehHoje}`);
             return ehHoje;
         });
 
