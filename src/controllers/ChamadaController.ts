@@ -37,6 +37,27 @@ class ChamadaController {
             });
         }
     }
+
+    static async getChamadasDoMes(req: Request, res: Response) {
+        try {
+            const { colaborador_id } = req.params;
+            const { mes } = req.query as { mes?: string };
+
+            if (!colaborador_id) {
+                return res.status(400).json({
+                    error: "colaborador_id é obrigatório"
+                });
+            }
+
+            const resultado = await ServiceChamada.getChamadasDoMes(Number(colaborador_id), mes);
+            res.json(resultado);
+        } catch (error: any) {
+            res.status(500).json({
+                message: "Erro ao buscar chamadas do mês",
+                error: error.message
+            });
+        }
+    }
 }
 
 export default ChamadaController;

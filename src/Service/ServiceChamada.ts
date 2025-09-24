@@ -202,6 +202,76 @@ class ServiceChamada {
             chamadas: chamadasDetalhadas
         };
     }
+
+    static async getChamadasDoMes(colaborador_id: number, mes?: string) {
+        const chamadas = await RepositoryChamada.getChamadasDoMes(colaborador_id, mes);
+
+        // Determinar mês e ano para a resposta
+        let mesNumerico: number;
+        let ano: number;
+
+        if (mes) {
+            if (mes.includes('-')) {
+                const [anoStr, mesStr] = mes.split('-');
+                ano = parseInt(anoStr);
+                mesNumerico = parseInt(mesStr);
+            } else {
+                ano = new Date().getFullYear();
+                mesNumerico = parseInt(mes);
+            }
+        } else {
+            const agora = new Date();
+            ano = agora.getFullYear();
+            mesNumerico = agora.getMonth() + 1;
+        }
+
+        if (chamadas.length === 0) {
+            return {
+                message: `Nenhuma chamada encontrada para o mês ${mesNumerico}/${ano}`,
+                mes: mesNumerico,
+                ano: ano,
+                colaborador_id: colaborador_id,
+                total: 0,
+                chamadas: []
+            };
+        }
+
+        // Mapear dias da semana corretamente
+        const diasSemana = [
+            'domingo',    // 0
+            'segunda-feira', // 1
+            'terça-feira',   // 2
+            'quarta-feira',  // 3
+            'quinta-feira',  // 4
+            'sexta-feira',   // 5
+            'sábado'         // 6
+        ];
+
+        const chamadasFormatadas = [];
+
+        for (const chamada of chamadas) {
+
+            // Buscar nome da turma
+            const turma = await Turma.findByPk(chamada.turma_id);
+
+            chamadasFormatadas.push({
+                chamada_id: chamada.chamada_id,
+                turma_id: chamada.turma_id,
+                turma_nome: turma?.nome || 'Turma não encontrada',
+                colaborador_id: chamada.colaborador_id,
+                data_aula: chamada.data_aula,
+            });
+        }
+
+        return {
+            message: `${chamadas.length} chamada(s) encontrada(s) para o mês ${mesNumerico}/${ano}`,
+            mes: mesNumerico,
+            ano: ano,
+            colaborador_id: colaborador_id,
+            total: chamadas.length,
+            chamadas: chamadasFormatadas
+        };
+    }
 }
 
 export default ServiceChamada;
