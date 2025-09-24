@@ -59,6 +59,12 @@ class ColaboradoresRepository {
     }
     return await Colaborador.findOne({ where: whereCondition });
   }
+
+  static async findByNome(nome: string) {
+  return await Colaborador.findOne({ 
+    where: { nome: nome.trim() } 
+  });
+}
 }
 
 export default ColaboradoresRepository;

@@ -16,13 +16,23 @@ class UsuarioService {
     if (!usuario || usuario.senha !== senha) {
       return null;
     }
+
+    // Buscar o colaborador correspondente pelo nome
+    let colaborador_id = null;
+    if (usuario.tipo === 'Professor') {
+      const colaborador = await ColaboradorRepository.findByNome(usuario.nome);
+      if (colaborador) {
+        colaborador_id = colaborador.colaborador_id;
+      }
+    }
     
-    // Retorna usuário sem a senha
+    // Retorna usuário sem a senha e com colaborador_id se encontrado
     return {
       id: usuario.id,
       login: usuario.login,
       nome: usuario.nome,
-      tipo: usuario.tipo
+      tipo: usuario.tipo,
+      colaborador_id: colaborador_id // Será null se não for professor ou não encontrar colaborador
     };
   }
     
@@ -73,7 +83,8 @@ class UsuarioService {
         id: novoUsuario.id,
         login: novoUsuario.login,
         nome: novoUsuario.nome,
-        tipo: novoUsuario.tipo
+        tipo: novoUsuario.tipo,
+        colaborador_id: colaborador.colaborador_id // Incluindo colaborador_id na criação também
       },
       colaborador: {
         id: colaborador.colaborador_id,

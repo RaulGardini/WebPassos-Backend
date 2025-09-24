@@ -13,6 +13,7 @@ import RouteHorarioTurma from "./Routes/RouteHorarioTurma";
 import RouteMatricula from "./Routes/RouteMatricula";
 import RouteDashboard from "./Routes/RouteDashboard";
 import RouteFornecedor from "./Routes/RouteFornecedor";
+import RouteChamada from "./Routes/RouteChamada";
 
 const app = express();
 app.use(express.json());
@@ -34,6 +35,7 @@ app.use("/horarioTurma", RouteHorarioTurma);
 app.use("/matricula", RouteMatricula);
 app.use("/dashboard", RouteDashboard);
 app.use("/fornecedores", RouteFornecedor);
+app.use("/chamadas", RouteChamada);
 
 sequelize.authenticate()
   .then(() => console.log("✅ Conectado ao banco com sucesso!"))
