@@ -62,7 +62,7 @@ export class TurmasController {
   static async getAulasHoje(req: Request, res: Response) {
     try {
       const aulas = await TurmasService.getAulasHoje();
-      
+
       // Formatando a resposta para melhor legibilidade
       const aulasFormatadas = aulas.map((turma: any) => ({
         turma_id: turma.turma_id,
@@ -86,10 +86,63 @@ export class TurmasController {
       });
     } catch (error: any) {
       console.error('Erro ao buscar aulas de hoje:', error);
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: 'Erro interno do servidor',
-        details: error.message 
+        details: error.message
       });
     }
   }
+
+  static async getAulasHojePorColaborador(req: Request, res: Response) {
+    try {
+      const { colaboradorId } = req.params;
+
+      if (!colaboradorId || isNaN(Number(colaboradorId))) {
+        return res.status(400).json({
+          error: "ID do colaborador deve ser um número válido"
+        });
+      }
+
+      const resultado = await TurmasService.getAulasHojePorColaborador(Number(colaboradorId));
+
+      // Se retornou objeto com mensagem (sem aulas)
+      if ('mensagem' in resultado) {
+        return res.json(resultado);
+      }
+
+      // Formatando as aulas encontradas (resultado é um array)
+      const aulasFormatadas = resultado.map((turma: any) => ({
+        turma_id: turma.turma_id,
+        nome_turma: turma.nome,
+        sala_id: turma.sala_id,
+        modalidade_id: turma.modalidade_id,
+        professor1_id: turma.professor1_id,
+        professor2_id: turma.professor2_id,
+        capacidade: turma.capacidade,
+        horarios: turma.horarios ? turma.horarios.map((h: any) => ({
+          horario_id: h.horario_id,
+          dia_semana: h.dia_semana,
+          horario: h.horario
+        })) : []
+      }));
+
+      const diasSemana = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+
+      return res.json({
+        colaborador_id: Number(colaboradorId),
+        data: new Date().toLocaleDateString('pt-BR'),
+        dia_semana: diasSemana[new Date().getDay()],
+        total_aulas: aulasFormatadas.length,
+        aulas: aulasFormatadas
+      });
+
+    } catch (error: any) {
+      console.error('Erro ao buscar aulas do colaborador:', error);
+      return res.status(500).json({
+        error: 'Erro interno do servidor',
+        details: error.message
+      });
+    }
+  }
+
 }

@@ -3,12 +3,42 @@ import Turma from "../Models/Turma";
 import RepositoryHorario from "../Repository/RepositoryHorario";
 import { HorariosTurmasRepository } from "../Repository/RepositoryHorarioTurma";
 import RepositorySala from "../Repository/RepositorySala"
+import { TurmasRepository } from "../Repository/RepositoryTurma"
 
 interface GerarChamadasDTO {
     colaborador_id: number;
 }
 
 class ServiceChamada {
+    static async criarChamadaHoje(turma_id: number) {
+        // Buscar dados da turma para obter o colaborador_id
+        const turma = await TurmasRepository.findById(turma_id);
+        
+        if (!turma) {
+            throw new Error('Turma não encontrada');
+        }
+
+        if (turma.status !== 'ativa') {
+            throw new Error('Não é possível criar chamada para uma turma inativa');
+        }
+
+        // Usar o professor1_id como colaborador_id
+        const colaborador_id = turma.professor1_id;
+
+        if (!colaborador_id) {
+            throw new Error('Turma não possui professor associado');
+        }
+
+        // Criar a chamada
+        const novaChamada = await RepositoryChamada.createChamadaHoje(turma_id, colaborador_id);
+
+        return {
+            message: "Chamada criada com sucesso",
+            chamada: novaChamada,
+            data_aula: new Date().toLocaleDateString('pt-BR')
+        };
+    }
+
     static async gerarChamadasMes(data: GerarChamadasDTO) {
         const { colaborador_id } = data;
         const agora = new Date();
@@ -22,12 +52,23 @@ class ServiceChamada {
             throw new Error('Colaborador não está associado a nenhuma turma ativa');
         }
 
-        // Verificar se já existem chamadas para este mês
+        // Buscar chamadas existentes do mês para evitar duplicatas
         const chamadasExistentes = await RepositoryChamada.verificarChamadasExistentes(colaborador_id, mes, ano);
 
-        if (chamadasExistentes.length > 0) {
-            throw new Error('Já existem chamadas criadas para este colaborador neste mês');
-        }
+        // Criar um Set com as combinações já existentes para comparação rápida
+        // Usando apenas turma_id + data (sem horas) para comparação
+        const chamadasExistentesSet = new Set(
+            chamadasExistentes.map(chamada => {
+                const data = new Date(chamada.data_aula);
+                // Usar UTC para evitar problemas de timezone
+                const ano = data.getUTCFullYear();
+                const mes = (data.getUTCMonth() + 1).toString().padStart(2, '0');
+                const dia = data.getUTCDate().toString().padStart(2, '0');
+                const dataStr = `${ano}-${mes}-${dia}`;
+                const chave = `${chamada.turma_id}-${dataStr}`;
+                return chave;
+            })
+        );
 
         const chamadasParaCriar: any[] = [];
 
@@ -67,27 +108,48 @@ class ServiceChamada {
                 // Gerar datas para todos os dias deste tipo no mês
                 const datasAulas = ServiceChamada.gerarDatasDoMes(ano, mes, diaSemanaNumero, horaInicio.trim());
 
-                // Criar chamadas para cada data
+                // Verificar cada data gerada contra as existentes
                 for (const dataAula of datasAulas) {
-                    chamadasParaCriar.push({
-                        turma_id: turma.turma_id,
-                        colaborador_id: colaborador_id,
-                        data_aula: dataAula
-                    });
+                    // Usar UTC para evitar problemas de timezone
+                    const ano = dataAula.getUTCFullYear();
+                    const mes = (dataAula.getUTCMonth() + 1).toString().padStart(2, '0');
+                    const dia = dataAula.getUTCDate().toString().padStart(2, '0');
+                    const dataStr = `${ano}-${mes}-${dia}`;
+                    const chaveUnica = `${turma.turma_id}-${dataStr}`;
+
+                    // Só adicionar se NÃO existir essa combinação turma+data
+                    if (!chamadasExistentesSet.has(chaveUnica)) {
+                        chamadasParaCriar.push({
+                            turma_id: turma.turma_id,
+                            colaborador_id: colaborador_id,
+                            data_aula: dataAula
+                        });
+                    } else {
+                    }
                 }
             }
         }
 
         if (chamadasParaCriar.length === 0) {
-            throw new Error('Nenhuma chamada foi gerada. Verifique os horários das turmas.');
+            return {
+                message: `Todas as chamadas do mês ${mes}/${ano} já existem. Nenhuma chamada nova foi criada.`,
+                chamadas_ja_existentes: chamadasExistentes.length,
+                chamadas_criadas: 0,
+                total_chamadas_mes: chamadasExistentes.length,
+                mes,
+                ano,
+                detalhes: []
+            };
         }
 
-        // Criar todas as chamadas usando o repositório
+        // Criar apenas as chamadas que não existem
         const chamadasCriadas = await RepositoryChamada.createMultiple(chamadasParaCriar);
 
         return {
             message: `${chamadasCriadas.length} chamadas criadas com sucesso para o mês ${mes}/${ano}`,
+            chamadas_ja_existentes: chamadasExistentes.length,
             chamadas_criadas: chamadasCriadas.length,
+            total_chamadas_mes: chamadasExistentes.length + chamadasCriadas.length,
             mes,
             ano,
             detalhes: chamadasCriadas

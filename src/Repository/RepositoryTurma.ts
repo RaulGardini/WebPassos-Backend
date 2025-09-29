@@ -1,6 +1,7 @@
 import Turma from "../Models/Turma";
 import Horario from "../Models/Horario";
-import TurmaHorario from "../Models/HorarioTurma"; // tabela de junção
+import TurmaHorario from "../Models/HorarioTurma";
+import Sala from "../Models/Sala";
 import { Op } from "sequelize";
 import { TurmaFilter } from "../Filter/Turma/TurmaFilter";
 
@@ -12,7 +13,7 @@ export class TurmasRepository {
     const where: any = {};
 
     if (filter?.nome) {
-      where.nome = { [Op.iLike]: `%${filter.nome}%` }; // busca parcial
+      where.nome = { [Op.iLike]: `%${filter.nome}%` };
     }
     if (filter?.professor1_id) {
       where.professor1_id = filter.professor1_id;
@@ -88,6 +89,49 @@ export class TurmasRepository {
       ],
       order: [
         [{ model: Horario, as: "horarios" }, "horario", "ASC"] // ordena por horário
+      ]
+    });
+  }
+
+  static async findAulasHojePorColaborador(colaboradorId: number) {
+    const hoje = new Date();
+    const diasSemana = [
+      'domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'
+    ];
+    const diaHoje = diasSemana[hoje.getDay()];
+
+    return await Turma.findAll({
+      where: {
+        status: 'ativa',
+        [Op.or]: [
+          { professor1_id: colaboradorId },
+          { professor2_id: colaboradorId }
+        ]
+      },
+      include: [
+        {
+          model: Horario,
+          as: "horarios",
+          where: {
+            dia_semana: {
+              [Op.iLike]: `%${diaHoje}%`
+            }
+          },
+          attributes: ["horario_id", "dia_semana", "horario"],
+          through: { attributes: [] }
+        }
+      ],
+      attributes: [
+        "turma_id",
+        "nome",
+        "sala_id",
+        "modalidade_id",
+        "professor1_id",
+        "professor2_id",
+        "capacidade"
+      ],
+      order: [
+        [{ model: Horario, as: "horarios" }, "horario", "ASC"]
       ]
     });
   }

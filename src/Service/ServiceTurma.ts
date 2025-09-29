@@ -40,4 +40,22 @@ export class TurmasService {
 
     return await TurmasRepository.findAulasPorDia(diaHoje);
   }
+
+  static async getAulasHojePorColaborador(colaboradorId: number) {
+    if (!colaboradorId) {
+      throw new Error("ID do colaborador é obrigatório");
+    }
+    const aulas = await TurmasRepository.findAulasHojePorColaborador(colaboradorId);
+    if (aulas.length === 0) {
+      return {
+        colaborador_id: colaboradorId,
+        data: new Date().toLocaleDateString('pt-BR'),
+        dia_semana: ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'][new Date().getDay()],
+        total_aulas: 0,
+        aulas: [],
+        mensagem: "Nenhuma aula encontrada para hoje"
+      };
+    }
+    return aulas;
+  }
 }

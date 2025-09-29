@@ -2,9 +2,30 @@ import { Request, Response } from "express";
 import ServiceChamada from "../Service/ServiceChamada";
 
 class ChamadaController {
+    // NOVO MÉTODO: Criar chamada para hoje
+    static async criarChamadaHoje(req: Request, res: Response) {
+        try {
+            const { turma_id } = req.params;
+
+            if (!turma_id || isNaN(Number(turma_id))) {
+                return res.status(400).json({
+                    error: "ID da turma é obrigatório e deve ser um número válido"
+                });
+            }
+
+            const resultado = await ServiceChamada.criarChamadaHoje(Number(turma_id));
+            res.status(201).json(resultado);
+        } catch (error: any) {
+            res.status(400).json({
+                message: "Erro ao criar chamada",
+                error: error.message
+            });
+        }
+    }
+
     static async gerarChamadasMes(req: Request, res: Response) {
         try {
-            const { colaborador_id } = req.params; // Mudança: pegar do params em vez do body
+            const { colaborador_id } = req.params;
 
             if (!colaborador_id) {
                 return res.status(400).json({

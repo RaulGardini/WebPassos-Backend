@@ -13,6 +13,36 @@ class RepositoryChamada {
         return await Chamada.bulkCreate(chamadasData);
     }
 
+    // NOVO MÉTODO: Criar chamada para hoje
+    static async createChamadaHoje(turma_id: number, colaborador_id: number) {
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0); // Zerar horas para evitar duplicatas
+
+        // Verificar se já existe chamada para essa turma hoje
+        const chamadaExistente = await Chamada.findOne({
+            where: {
+                turma_id,
+                colaborador_id,
+                data_aula: {
+                    [Op.between]: [
+                        new Date(hoje.getTime()),
+                        new Date(hoje.getTime() + 24 * 60 * 60 * 1000 - 1)
+                    ]
+                }
+            }
+        });
+
+        if (chamadaExistente) {
+            throw new Error('Já existe uma chamada para esta turma hoje');
+        }
+
+        return await Chamada.create({
+            turma_id,
+            colaborador_id,
+            data_aula: hoje
+        });
+    }
+
     static async getTurmasDoColaborador(colaborador_id: number) {
         // Buscar turmas do colaborador usando o modelo existente
         const turmas = await Turma.findAll({
@@ -127,6 +157,26 @@ class RepositoryChamada {
         });
     }
 
+    static async verificarDuplicata(turma_id: number, colaborador_id: number, data_aula: Date) {
+    // Criar data sem horas para comparação
+    const dataSemHoras = new Date(data_aula);
+    dataSemHoras.setHours(0, 0, 0, 0);
+    
+    const proximoDia = new Date(dataSemHoras);
+    proximoDia.setDate(proximoDia.getDate() + 1);
+    
+    const chamadaExistente = await Chamada.findOne({
+        where: {
+            turma_id,
+            colaborador_id,
+            data_aula: {
+                [Op.between]: [dataSemHoras, proximoDia]
+            }
+        }
+    });
+    
+    return chamadaExistente !== null;
+}
 }
 
 export default RepositoryChamada;
