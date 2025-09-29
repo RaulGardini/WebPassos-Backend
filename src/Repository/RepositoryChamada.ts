@@ -122,40 +122,42 @@ class RepositoryChamada {
     }
 
     static async getChamadasDoMes(colaborador_id: number, mes?: string) {
-        let whereCondition: any = {
-            colaborador_id: colaborador_id
-        };
+    let whereCondition: any = {
+        colaborador_id: colaborador_id
+    };
 
-        if (mes) {
-            // Se passou o mês, filtrar por ele
-            let mesNumerico: number;
-            let ano: number;
+    if (mes) {
+        // Se passou o mês, filtrar por ele
+        let mesNumerico: number;
+        let ano: number;
 
-            if (mes.includes('-')) {
-                // Formato "YYYY-MM"
-                const [anoStr, mesStr] = mes.split('-');
-                ano = parseInt(anoStr);
-                mesNumerico = parseInt(mesStr);
-            } else {
-                // Formato "MM" - usa ano atual
-                ano = new Date().getFullYear();
-                mesNumerico = parseInt(mes);
-            }
-
-            // Criar datas de início e fim do mês
-            const inicioMes = new Date(ano, mesNumerico - 1, 1);
-            const fimMes = new Date(ano, mesNumerico, 0, 23, 59, 59, 999);
-
-            whereCondition.data_aula = {
-                [Op.between]: [inicioMes, fimMes]
-            };
+        if (mes.includes('-')) {
+            // Formato "YYYY-MM"
+            const [anoStr, mesStr] = mes.split('-');
+            ano = parseInt(anoStr);
+            mesNumerico = parseInt(mesStr);
+        } else {
+            // Formato "MM" - usa ano atual
+            ano = new Date().getFullYear();
+            mesNumerico = parseInt(mes);
         }
 
-        return await Chamada.findAll({
-            where: whereCondition,
-            order: [['data_aula', 'ASC']]
-        });
+        // Criar datas de início e fim do mês usando UTC
+        const inicioMes = new Date(Date.UTC(ano, mesNumerico - 1, 1, 0, 0, 0, 0));
+        const fimMes = new Date(Date.UTC(ano, mesNumerico, 0, 23, 59, 59, 999));
+
+        whereCondition.data_aula = {
+            [Op.between]: [inicioMes, fimMes]
+        };
     }
+
+    const chamadas = await Chamada.findAll({
+        where: whereCondition,
+        order: [['data_aula', 'ASC']]
+    });
+
+    return chamadas;
+}
 
     static async verificarDuplicata(turma_id: number, colaborador_id: number, data_aula: Date) {
     // Criar data sem horas para comparação

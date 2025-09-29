@@ -4,6 +4,7 @@ import RepositoryHorario from "../Repository/RepositoryHorario";
 import { HorariosTurmasRepository } from "../Repository/RepositoryHorarioTurma";
 import RepositorySala from "../Repository/RepositorySala"
 import { TurmasRepository } from "../Repository/RepositoryTurma"
+import { Op } from "sequelize";
 
 interface GerarChamadasDTO {
     colaborador_id: number;
@@ -66,9 +67,13 @@ class ServiceChamada {
                 const dia = data.getUTCDate().toString().padStart(2, '0');
                 const dataStr = `${ano}-${mes}-${dia}`;
                 const chave = `${chamada.turma_id}-${dataStr}`;
+                console.log(`Chamada existente: ${chave}`);
                 return chave;
             })
         );
+
+        console.log('Total de chamadas existentes:', chamadasExistentesSet.size);
+        console.log('Chamadas existentes Set:', Array.from(chamadasExistentesSet));
 
         const chamadasParaCriar: any[] = [];
 
@@ -117,6 +122,8 @@ class ServiceChamada {
                     const dataStr = `${ano}-${mes}-${dia}`;
                     const chaveUnica = `${turma.turma_id}-${dataStr}`;
 
+                    console.log(`Verificando: ${chaveUnica} - Existe: ${chamadasExistentesSet.has(chaveUnica)}`);
+
                     // Só adicionar se NÃO existir essa combinação turma+data
                     if (!chamadasExistentesSet.has(chaveUnica)) {
                         chamadasParaCriar.push({
@@ -125,6 +132,7 @@ class ServiceChamada {
                             data_aula: dataAula
                         });
                     } else {
+                        console.log(`⚠️ DUPLICATA EVITADA: ${chaveUnica}`);
                     }
                 }
             }
@@ -266,18 +274,18 @@ class ServiceChamada {
     }
 
     static async getChamadasDoMes(colaborador_id: number, mes?: string) {
-        const chamadas = await RepositoryChamada.getChamadasDoMes(colaborador_id, mes);
-
-        // Determinar mês e ano para a resposta
+        // Determinar mês e ano
         let mesNumerico: number;
         let ano: number;
 
         if (mes) {
             if (mes.includes('-')) {
+                // Formato "YYYY-MM"
                 const [anoStr, mesStr] = mes.split('-');
                 ano = parseInt(anoStr);
                 mesNumerico = parseInt(mesStr);
             } else {
+                // Formato "MM" - usa ano atual
                 ano = new Date().getFullYear();
                 mesNumerico = parseInt(mes);
             }
@@ -286,6 +294,27 @@ class ServiceChamada {
             ano = agora.getFullYear();
             mesNumerico = agora.getMonth() + 1;
         }
+
+        // Criar condição where com filtro de mês/ano
+        let whereCondition: any = {
+            colaborador_id: colaborador_id
+        };
+
+        if (mes !== undefined) {
+            // Criar datas de início e fim do mês em UTC para evitar problemas de timezone
+            const inicioMes = new Date(Date.UTC(ano, mesNumerico - 1, 1, 0, 0, 0, 0));
+            const fimMes = new Date(Date.UTC(ano, mesNumerico, 0, 23, 59, 59, 999));
+
+            console.log(`Buscando chamadas para mês ${mesNumerico}/${ano}`);
+            console.log(`Início: ${inicioMes.toISOString()}`);
+            console.log(`Fim: ${fimMes.toISOString()}`);
+
+            whereCondition.data_aula = {
+                [Op.between]: [inicioMes, fimMes]
+            };
+        }
+
+        const chamadas = await RepositoryChamada.getChamadasDoMes(colaborador_id, mes);
 
         if (chamadas.length === 0) {
             return {
@@ -298,30 +327,22 @@ class ServiceChamada {
             };
         }
 
-        // Mapear dias da semana corretamente
-        const diasSemana = [
-            'domingo',    // 0
-            'segunda-feira', // 1
-            'terça-feira',   // 2
-            'quarta-feira',  // 3
-            'quinta-feira',  // 4
-            'sexta-feira',   // 5
-            'sábado'         // 6
-        ];
-
         const chamadasFormatadas = [];
 
         for (const chamada of chamadas) {
-
             // Buscar nome da turma
             const turma = await Turma.findByPk(chamada.turma_id);
+
+            // Formatar a data para exibição
+            const dataAula = new Date(chamada.data_aula);
+            const dataFormatada = dataAula.toISOString().split('T')[0]; // YYYY-MM-DD
 
             chamadasFormatadas.push({
                 chamada_id: chamada.chamada_id,
                 turma_id: chamada.turma_id,
                 turma_nome: turma?.nome || 'Turma não encontrada',
                 colaborador_id: chamada.colaborador_id,
-                data_aula: chamada.data_aula,
+                data_aula: dataFormatada, // Retornar no formato YYYY-MM-DD
             });
         }
 
