@@ -13,12 +13,10 @@ class RepositoryChamada {
         return await Chamada.bulkCreate(chamadasData);
     }
 
-    // NOVO MÉTODO: Criar chamada para hoje
     static async createChamadaHoje(turma_id: number, colaborador_id: number) {
         const hoje = new Date();
-        hoje.setHours(0, 0, 0, 0); // Zerar horas para evitar duplicatas
+        hoje.setHours(0, 0, 0, 0);
 
-        // Verificar se já existe chamada para essa turma hoje
         const chamadaExistente = await Chamada.findOne({
             where: {
                 turma_id,
@@ -44,7 +42,6 @@ class RepositoryChamada {
     }
 
     static async getTurmasDoColaborador(colaborador_id: number) {
-        // Buscar turmas do colaborador usando o modelo existente
         const turmas = await Turma.findAll({
             where: {
                 [Op.or]: [
@@ -54,15 +51,12 @@ class RepositoryChamada {
             }
         });
 
-        // Para cada turma, buscar seus horários usando os repositórios existentes
         const turmasComHorarios = [];
         for (const turma of turmas) {
-            // Buscar horários da turma usando o repositório existente
             const horariosTurma = await HorariosTurmasRepository.findByTurmaId(turma.turma_id);
 
             const horariosCompletos = [];
             for (const horarioTurma of horariosTurma) {
-                // Buscar dados do horário usando o repositório existente
                 const horario = await RepositoryHorario.findById(horarioTurma.horario_id);
                 if (horario) {
                     horariosCompletos.push({
@@ -127,22 +121,18 @@ class RepositoryChamada {
     };
 
     if (mes) {
-        // Se passou o mês, filtrar por ele
         let mesNumerico: number;
         let ano: number;
 
         if (mes.includes('-')) {
-            // Formato "YYYY-MM"
             const [anoStr, mesStr] = mes.split('-');
             ano = parseInt(anoStr);
             mesNumerico = parseInt(mesStr);
         } else {
-            // Formato "MM" - usa ano atual
             ano = new Date().getFullYear();
             mesNumerico = parseInt(mes);
         }
 
-        // Criar datas de início e fim do mês usando UTC
         const inicioMes = new Date(Date.UTC(ano, mesNumerico - 1, 1, 0, 0, 0, 0));
         const fimMes = new Date(Date.UTC(ano, mesNumerico, 0, 23, 59, 59, 999));
 
@@ -160,7 +150,6 @@ class RepositoryChamada {
 }
 
     static async verificarDuplicata(turma_id: number, colaborador_id: number, data_aula: Date) {
-    // Criar data sem horas para comparação
     const dataSemHoras = new Date(data_aula);
     dataSemHoras.setHours(0, 0, 0, 0);
     

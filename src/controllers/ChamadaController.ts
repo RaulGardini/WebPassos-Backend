@@ -2,22 +2,20 @@ import { Request, Response } from "express";
 import ServiceChamada from "../Service/ServiceChamada";
 
 class ChamadaController {
-    // NOVO MÉTODO: Criar chamada para hoje
     static async criarChamadaHoje(req: Request, res: Response) {
         try {
             const { turma_id } = req.params;
 
             if (!turma_id || isNaN(Number(turma_id))) {
                 return res.status(400).json({
-                    error: "ID da turma é obrigatório e deve ser um número válido"
+                    error: "ID da turma inválido"
                 });
             }
 
             const resultado = await ServiceChamada.criarChamadaHoje(Number(turma_id));
-            res.status(201).json(resultado);
+            return res.status(201).json(resultado);
         } catch (error: any) {
-            res.status(400).json({
-                message: "Erro ao criar chamada",
+            return res.status(400).json({
                 error: error.message
             });
         }
@@ -27,19 +25,18 @@ class ChamadaController {
         try {
             const { colaborador_id } = req.params;
 
-            if (!colaborador_id) {
+            if (!colaborador_id || isNaN(Number(colaborador_id))) {
                 return res.status(400).json({
-                    error: "colaborador_id é obrigatório"
+                    error: "ID do colaborador inválido"
                 });
             }
 
             const resultado = await ServiceChamada.gerarChamadasMes({
                 colaborador_id: Number(colaborador_id)
             });
-            res.status(201).json(resultado);
+            return res.status(201).json(resultado);
         } catch (error: any) {
-            res.status(400).json({
-                message: "Erro ao gerar chamadas",
+            return res.status(400).json({
                 error: error.message
             });
         }
@@ -49,11 +46,16 @@ class ChamadaController {
         try {
             const { colaborador_id } = req.params;
 
+            if (!colaborador_id || isNaN(Number(colaborador_id))) {
+                return res.status(400).json({
+                    error: "ID do colaborador inválido"
+                });
+            }
+
             const resultado = await ServiceChamada.getChamadasDoDia(Number(colaborador_id));
-            res.json(resultado);
+            return res.json(resultado);
         } catch (error: any) {
-            res.status(500).json({
-                message: "Erro ao buscar chamadas do dia",
+            return res.status(500).json({
                 error: error.message
             });
         }
@@ -64,17 +66,16 @@ class ChamadaController {
             const { colaborador_id } = req.params;
             const { mes } = req.query as { mes?: string };
 
-            if (!colaborador_id) {
+            if (!colaborador_id || isNaN(Number(colaborador_id))) {
                 return res.status(400).json({
-                    error: "colaborador_id é obrigatório"
+                    error: "ID do colaborador inválido"
                 });
             }
 
             const resultado = await ServiceChamada.getChamadasDoMes(Number(colaborador_id), mes);
-            res.json(resultado);
+            return res.json(resultado);
         } catch (error: any) {
-            res.status(500).json({
-                message: "Erro ao buscar chamadas do mês",
+            return res.status(500).json({
                 error: error.message
             });
         }
