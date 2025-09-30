@@ -33,11 +33,19 @@ export class TurmasService {
 
   static async getAulasHoje() {
     const hoje = new Date();
+    // CORREÇÃO: Usar o formato exato do banco de dados
     const diasSemana = [
-      'domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'
+      'Domingo-feira',
+      'Segunda-feira',
+      'Terça-feira',
+      'Quarta-feira',
+      'Quinta-feira',
+      'Sexta-feira',
+      'Sábado-feira'
     ];
     const diaHoje = diasSemana[hoje.getDay()];
 
+    console.log('Buscando aulas para:', diaHoje); // Debug
     return await TurmasRepository.findAulasPorDia(diaHoje);
   }
 
@@ -45,12 +53,26 @@ export class TurmasService {
     if (!colaboradorId) {
       throw new Error("ID do colaborador é obrigatório");
     }
+
+    const hoje = new Date();
+    const diasSemana = [
+      'Domingo-feira',
+      'Segunda-feira',
+      'Terça-feira',
+      'Quarta-feira',
+      'Quinta-feira',
+      'Sexta-feira',
+      'Sábado-feira'
+    ];
+    const diaSemanaFormatado = diasSemana[hoje.getDay()];
+
     const aulas = await TurmasRepository.findAulasHojePorColaborador(colaboradorId);
+    
     if (aulas.length === 0) {
       return {
         colaborador_id: colaboradorId,
         data: new Date().toLocaleDateString('pt-BR'),
-        dia_semana: ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'][new Date().getDay()],
+        dia_semana: diaSemanaFormatado,
         total_aulas: 0,
         aulas: [],
         mensagem: "Nenhuma aula encontrada para hoje"

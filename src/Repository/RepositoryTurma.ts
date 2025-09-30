@@ -70,12 +70,11 @@ export class TurmasRepository {
           model: Horario,
           as: "horarios",
           where: {
-            dia_semana: {
-              [Op.iLike]: `%${diaSemana}%` // busca case-insensitive
-            }
+            // CORREÇÃO: Busca exata pelo dia da semana
+            dia_semana: diaSemana
           },
           attributes: ["horario_id", "dia_semana", "horario"],
-          through: { attributes: [] } // esconde a tabela pivot
+          through: { attributes: [] }
         }
       ],
       attributes: [
@@ -88,7 +87,7 @@ export class TurmasRepository {
         "capacidade"
       ],
       order: [
-        [{ model: Horario, as: "horarios" }, "horario", "ASC"] // ordena por horário
+        [{ model: Horario, as: "horarios" }, "horario", "ASC"]
       ]
     });
   }
@@ -96,7 +95,13 @@ export class TurmasRepository {
   static async findAulasHojePorColaborador(colaboradorId: number) {
     const hoje = new Date();
     const diasSemana = [
-      'domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'
+      'Domingo-feira',
+      'Segunda-feira',
+      'Terça-feira',
+      'Quarta-feira',
+      'Quinta-feira',
+      'Sexta-feira',
+      'Sábado-feira'
     ];
     const diaHoje = diasSemana[hoje.getDay()];
 
@@ -113,9 +118,8 @@ export class TurmasRepository {
           model: Horario,
           as: "horarios",
           where: {
-            dia_semana: {
-              [Op.iLike]: `%${diaHoje}%`
-            }
+            // CORREÇÃO: Busca exata pelo dia da semana
+            dia_semana: diaHoje
           },
           attributes: ["horario_id", "dia_semana", "horario"],
           through: { attributes: [] }
