@@ -1,6 +1,7 @@
 import RepositoryMatricula from "../Repository/RepositoryMatricula";
 import { CreateMatriculaDTO } from "../DTOs/Matricula/CreateMatriculaDTO";
 import MatriculaFilter from "../Filter/Matricula/MatriculaFilter";
+import MatriculaMov from "../Models/MatriculaMov";
 
 class ServiceMatricula {
     // Buscar alunos disponíveis para matrícula em uma turma
@@ -77,6 +78,8 @@ class ServiceMatricula {
             throw new Error("Turma já está com capacidade máxima");
         }
 
+        const isPrimeiraMatricula = await RepositoryMatricula.isPrimeiraMatriculaDoAluno(aluno_id);
+
         // Gerar número da matrícula
         const numeroMatricula = await RepositoryMatricula.generateNumeroMatricula();
 
@@ -91,6 +94,19 @@ class ServiceMatricula {
         };
 
         const novaMatricula = await RepositoryMatricula.create(matriculaData);
+        console.log("Matrícula criada com ID:", novaMatricula.matricula_id);
+
+        // Registrar movimentação apenas se for a primeira matrícula
+        if (isPrimeiraMatricula) {
+                const movimentacao = await MatriculaMov.create({
+                    aluno_id: aluno_id,
+                    tipo: "realizada",
+                    data_mov: new Date()
+                });
+
+        } else {
+
+        }
 
         // Retornar matrícula com dados do aluno e turma
         return await RepositoryMatricula.findById(novaMatricula.matricula_id);
@@ -118,6 +134,8 @@ class ServiceMatricula {
             throw new Error("Turma já está com capacidade máxima");
         }
 
+        const isPrimeiraMatricula = await RepositoryMatricula.isPrimeiraMatriculaDoAluno(aluno_id);
+
         // Gerar número da matrícula
         const numeroMatricula = await RepositoryMatricula.generateNumeroMatricula();
 
@@ -132,6 +150,16 @@ class ServiceMatricula {
         };
 
         const novaMatricula = await RepositoryMatricula.create(matriculaData);
+        console.log("Matrícula criada com ID:", novaMatricula.matricula_id);
+
+        if (isPrimeiraMatricula) {
+                const movimentacao = await MatriculaMov.create({
+                    aluno_id: aluno_id,
+                    tipo: "realizada",
+                    data_mov: new Date()
+                });
+        } else {
+        }
 
         // Retornar matrícula com dados do aluno
         return await RepositoryMatricula.findById(novaMatricula.matricula_id);
@@ -144,10 +172,38 @@ class ServiceMatricula {
             throw new Error("Matrícula não encontrada");
         }
 
+        const aluno_id = matricula.aluno_id;
+
+        // Contar matrículas do aluno ANTES de deletar
+        const countAntes = await RepositoryMatricula.countMatriculasDoAluno(aluno_id);
+        
+        console.log("=== DELETANDO MATRÍCULA ===");
+        console.log("Matrícula ID:", matricula_id);
+        console.log("Aluno ID:", aluno_id);
+        console.log("Total de matrículas do aluno antes de deletar:", countAntes);
+
         // Deletar matrícula
         const deletedRows = await RepositoryMatricula.delete(matricula_id);
         if (deletedRows === 0) {
             throw new Error("Erro ao deletar matrícula");
+        }
+        console.log("Matrícula deletada com sucesso");
+
+        // Se era a última matrícula, registrar movimentação
+        if (countAntes === 1) {
+            try {
+                console.log("Era a última matrícula! Tentando inserir movimentação de encerramento...");
+                const movimentacao = await MatriculaMov.create({
+                    aluno_id: aluno_id,
+                    tipo: "encerrada",
+                    data_mov: new Date()
+                });
+                console.log("Movimentação de encerramento criada com sucesso!", movimentacao.toJSON());
+            } catch (error) {
+                console.error("ERRO ao registrar movimentação de encerramento:", error);
+            }
+        } else {
+            console.log("Aluno ainda possui outras matrículas, não será registrada movimentação");
         }
 
         return {

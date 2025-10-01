@@ -1,5 +1,5 @@
 import { Router } from "express";
-import MatriculaController from "../Controllers/MatriculaController";
+import MatriculaController from "../controllers/MatriculaController";
 
 const router = Router();
 
