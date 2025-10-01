@@ -21,8 +21,6 @@ class ServiceHorario {
 
     static async deleteHorario(horarios_id: number) {
         const deleted = await RepositoryHorario.delete(horarios_id);
-        if (deleted === 0) throw new Error("Erro ao deletar horário");
-
         return { message: "Horário deletado com sucesso" };
     }
 

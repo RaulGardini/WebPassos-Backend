@@ -2,16 +2,17 @@ import { Request, Response } from "express";
 import AlunosService from "../Service/ServiceAluno";
 import { AlunoFilter } from "../Filter/Aluno/AlunoFilter";
 import { PaginationOptions } from "../Pagination/Pagination";
+import { ReadAlunoDTO } from "../DTOs/Aluno/ReadAlunoDTO";
+import { PaginatedResult } from "../Pagination/Pagination";
 
 class AlunosController {
-  static async getAllAlunos(req: Request, res: Response) {
+  static async getAllAlunos(req: Request, res: Response): Promise<Response<PaginatedResult<ReadAlunoDTO> | ReadAlunoDTO[]>> {
+    try {
       // Pega os filtros da query
       const filters: AlunoFilter = {
         nome: req.query.nome as string,
         email: req.query.email as string,
-        cpf: req.query.cpf as string,
         telefone: req.query.telefone as string,
-        sexo: req.query.sexo as "M" | "F",
         cidade: req.query.cidade as string,
         responsavel_financeiro: req.query.responsavel_financeiro as string,
       };
@@ -35,9 +36,12 @@ class AlunosController {
       );
 
       return res.json(result);
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message });
+    }
   }
 
-  static async getAlunoById(req: Request, res: Response) {
+  static async getAlunoById(req: Request, res: Response): Promise<Response<ReadAlunoDTO>> {
     try {
       const { id } = req.params;
       const aluno = await AlunosService.getAlunoById(Number(id));
@@ -50,7 +54,7 @@ class AlunosController {
     }
   }
 
-  static async createAluno(req: Request, res: Response) {
+  static async createAluno(req: Request, res: Response): Promise<Response<ReadAlunoDTO>> {
     try {
       const aluno = await AlunosService.createAluno(req.body);
       return res.status(201).json(aluno);
@@ -63,7 +67,7 @@ class AlunosController {
     }
   }
 
-  static async updateAluno(req: Request, res: Response) {
+  static async updateAluno(req: Request, res: Response): Promise<Response<ReadAlunoDTO>> {
     try {
       const { id } = req.params;
       const aluno = await AlunosService.updateAluno(Number(id), req.body);
@@ -80,7 +84,7 @@ class AlunosController {
     }
   }
 
-  static async deleteAluno(req: Request, res: Response) {
+  static async deleteAluno(req: Request, res: Response): Promise<Response<{ message: string }>> {
     try {
       const { id } = req.params;
       const result = await AlunosService.deleteAluno(Number(id));

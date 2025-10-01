@@ -7,7 +7,7 @@ class ColaboradoresRepository {
     const where: any = {};
 
     if (filter?.nome) {
-      where.nome = { [Op.iLike]: `%${filter.nome}%` }; // busca parcial
+      where.nome = { [Op.iLike]: `%${filter.nome}%` };
     }
     if (filter?.email) {
       where.email = { [Op.iLike]: `%${filter.email}%` };

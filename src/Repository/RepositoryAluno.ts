@@ -2,9 +2,12 @@ import Alunos from "../Models/Aluno";
 import { Op } from "sequelize";
 import { AlunoFilter } from "../Filter/Aluno/AlunoFilter";
 import { PaginationOptions, PaginatedResult } from "../Pagination/Pagination";
+import { ReadAlunoDTO } from "../DTOs/Aluno/ReadAlunoDTO";
+import { CreateAlunoDTO } from "../DTOs/Aluno/CreateAlunoDTO";
+import { UpdateAlunoDTO } from "../DTOs/Aluno/UpdateAlunoDTO";
 
 class AlunosRepository {
-  static async findAll(filter?: AlunoFilter, pagination?: PaginationOptions): Promise<PaginatedResult<any> | any[]> {
+  static async findAll(filter?: AlunoFilter, pagination?: PaginationOptions): Promise<PaginatedResult<ReadAlunoDTO> | ReadAlunoDTO[]> {
     const where: any = {};
 
     if (filter?.nome) {
@@ -13,14 +16,8 @@ class AlunosRepository {
     if (filter?.email) {
       where.email = { [Op.iLike]: `%${filter.email}%` };
     }
-    if (filter?.cpf) {
-      where.cpf = filter.cpf;
-    }
     if (filter?.telefone) {
       where.telefone = { [Op.iLike]: `%${filter.telefone}%` };
-    }
-    if (filter?.sexo) {
-      where.sexo = filter.sexo;
     }
     if (filter?.cidade) {
       where.cidade = { [Op.iLike]: `%${filter.cidade}%` };
@@ -29,12 +26,11 @@ class AlunosRepository {
       where.responsavel_financeiro = { [Op.iLike]: `%${filter.responsavel_financeiro}%` };
     }
 
-    // Se não há paginação, retorna todos os resultados
     if (!pagination) {
-      return await Alunos.findAll({ where });
+      const alunos = await Alunos.findAll({ where });
+      return alunos.map(aluno => aluno.toJSON() as ReadAlunoDTO);
     }
 
-    // Com paginação
     const offset = (pagination.page - 1) * pagination.limit;
     
     const result = await Alunos.findAndCountAll({
@@ -47,7 +43,7 @@ class AlunosRepository {
     const totalPages = Math.ceil(result.count / pagination.limit);
 
     return {
-      data: result.rows,
+      data: result.rows.map(aluno => aluno.toJSON() as ReadAlunoDTO),
       pagination: {
         currentPage: pagination.page,
         totalPages,
@@ -59,41 +55,27 @@ class AlunosRepository {
     };
   }
 
-  static async findById(aluno_id: number) {
-    return await Alunos.findByPk(aluno_id);
+  static async findById(aluno_id: number): Promise<ReadAlunoDTO | null> {
+    const aluno = await Alunos.findByPk(aluno_id);
+    return aluno ? aluno.toJSON() as ReadAlunoDTO : null;
   }
 
-  static async create(alunoData: any) {
-    return await Alunos.create(alunoData);
+  static async create(alunoData: CreateAlunoDTO): Promise<ReadAlunoDTO> {
+    const aluno = await Alunos.create(alunoData);
+    return aluno.toJSON() as ReadAlunoDTO;
   }
 
-  static async update(aluno_id: number, alunoData: any) {
+  static async update(aluno_id: number, alunoData: UpdateAlunoDTO): Promise<number> {
     const [affectedRows] = await Alunos.update(alunoData, {
       where: { aluno_id }
     });
     return affectedRows;
   }
 
-  static async delete(aluno_id: number) {
+  static async delete(aluno_id: number): Promise<number> {
     return await Alunos.destroy({
       where: { aluno_id }
     });
-  }
-
-  static async findByCpf(cpf: string, excludeId?: number) {
-    const whereCondition: any = { cpf };
-    if (excludeId) {
-      whereCondition.aluno_id = { [Op.ne]: excludeId };
-    }
-    return await Alunos.findOne({ where: whereCondition });
-  }
-
-  static async findByNome(nome: string, excludeId?: number) {
-    const whereCondition: any = { nome };
-    if (excludeId) {
-      whereCondition.aluno_id = { [Op.ne]: excludeId };
-    }
-    return await Alunos.findOne({ where: whereCondition });
   }
 }
 
