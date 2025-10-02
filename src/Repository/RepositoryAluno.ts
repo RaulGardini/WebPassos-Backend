@@ -27,9 +27,14 @@ class AlunosRepository {
       where.responsavel_financeiro = { [Op.iLike]: `%${filter.responsavel_financeiro}%` };
     }
     if (filter?.mes_nascimento) {
-      where[Op.and] = sequelize.where(
-        sequelize.fn('EXTRACT', sequelize.literal('MONTH FROM data_nascimento')),
-        filter.mes_nascimento
+      if (!where[Op.and]) {
+        where[Op.and] = [];
+      }
+      where[Op.and].push(
+        sequelize.where(
+          sequelize.fn('EXTRACT', sequelize.literal('MONTH FROM data_nascimento')),
+          filter.mes_nascimento
+        )
       );
     }
 
