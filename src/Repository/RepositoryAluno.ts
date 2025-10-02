@@ -5,6 +5,7 @@ import { PaginationOptions, PaginatedResult } from "../Pagination/Pagination";
 import { ReadAlunoDTO } from "../DTOs/Aluno/ReadAlunoDTO";
 import { CreateAlunoDTO } from "../DTOs/Aluno/CreateAlunoDTO";
 import { UpdateAlunoDTO } from "../DTOs/Aluno/UpdateAlunoDTO";
+import sequelize from "../config/database";
 
 class AlunosRepository {
   static async findAll(filter?: AlunoFilter, pagination?: PaginationOptions): Promise<PaginatedResult<ReadAlunoDTO> | ReadAlunoDTO[]> {
@@ -24,6 +25,12 @@ class AlunosRepository {
     }
     if (filter?.responsavel_financeiro) {
       where.responsavel_financeiro = { [Op.iLike]: `%${filter.responsavel_financeiro}%` };
+    }
+    if (filter?.mes_nascimento) {
+      where[Op.and] = sequelize.where(
+        sequelize.fn('EXTRACT', sequelize.literal('MONTH FROM data_nascimento')),
+        filter.mes_nascimento
+      );
     }
 
     if (!pagination) {
