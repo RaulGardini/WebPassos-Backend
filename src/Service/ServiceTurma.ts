@@ -45,7 +45,6 @@ export class TurmasService {
     ];
     const diaHoje = diasSemana[hoje.getDay()];
 
-    console.log('Buscando aulas para:', diaHoje); // Debug
     return await TurmasRepository.findAulasPorDia(diaHoje);
   }
 

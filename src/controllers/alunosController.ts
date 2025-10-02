@@ -16,6 +16,18 @@ class AlunosController {
         cidade: req.query.cidade as string,
         responsavel_financeiro: req.query.responsavel_financeiro as string,
       };
+      
+      // Adiciona filtro de mês de nascimento se fornecido
+      if (req.query.mes_nascimento) {
+        const mes = parseInt(req.query.mes_nascimento as string);
+        if (mes >= 1 && mes <= 12) {
+          filters.mes_nascimento = mes;
+        } else {
+          return res.status(400).json({ 
+            error: "Mês de nascimento inválido. Deve ser um número entre 1 e 12." 
+          });
+        }
+      }
 
       // Remove propriedades vazias do filtro
       Object.keys(filters).forEach(key => {
