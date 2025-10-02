@@ -1,6 +1,7 @@
 import Matricula from "../Models/Matricula";
 import Aluno from "../Models/Aluno";
 import Turma from "../Models/Turma";
+import MatriculaMov from "../Models/MatriculaMov";
 import MatriculaFilter from "../Filter/Matricula/MatriculaFilter";
 import { Op } from "sequelize";
 
@@ -168,12 +169,39 @@ class RepositoryMatricula {
         });
     }
 
+    // Verificar se é a primeira matrícula do aluno
+    static async isPrimeiraMatriculaDoAluno(aluno_id: number) {
+        const count = await Matricula.count({
+            where: { aluno_id }
+        });
+        return count === 0;
+    }
+
+    // Contar quantas matrículas o aluno ainda possui
+    static async countMatriculasDoAluno(aluno_id: number) {
+        return await Matricula.count({
+            where: { aluno_id }
+        });
+    }
+
+    // Criar registro de movimentação de matrícula
+    static async createMatriculaMov(data: {
+        aluno_id: number;
+        tipo: string;
+    }) {
+        return await MatriculaMov.create({
+            aluno_id: data.aluno_id,
+            tipo: data.tipo,
+            data_mov: new Date()
+        });
+    }
+
     static async delete(matricula_id: number) {
-    const deletedRows = await Matricula.destroy({
-      where: { matricula_id }
-    });
-    return deletedRows;
-  }
+        const deletedRows = await Matricula.destroy({
+            where: { matricula_id }
+        });
+        return deletedRows;
+    }
 }
 
 export default RepositoryMatricula;

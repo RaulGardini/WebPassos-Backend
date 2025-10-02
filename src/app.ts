@@ -15,6 +15,7 @@ import RouteDashboard from "./Routes/RouteDashboard";
 import RouteFornecedor from "./Routes/RouteFornecedor";
 import RouteChamada from "./Routes/RouteChamada";
 import RoutePresenca from "./Routes/RoutePresenca"
+import RouteMatriculasMov from "./Routes/RouteMatriculasMov"
 
 const app = express();
 app.use(express.json());
@@ -38,6 +39,7 @@ app.use("/dashboard", RouteDashboard);
 app.use("/fornecedores", RouteFornecedor);
 app.use("/chamadas", RouteChamada);
 app.use("/presencas", RoutePresenca);
+app.use("/matriculasMov", RouteMatriculasMov);
 
 sequelize.authenticate()
   .then(() => console.log("✅ Conectado ao banco com sucesso!"))
