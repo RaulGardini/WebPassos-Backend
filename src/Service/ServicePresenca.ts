@@ -27,7 +27,7 @@ class ServicePresenca {
         const presencasParaCriar = matriculas.map(matricula => ({
             chamada_id: chamada_id,
             aluno_id: matricula.aluno_id,
-            status: "presente" as "presente" | "falta"
+            status: "falta" as "presente" | "falta"
         }));
 
         const presencasCriadas = await RepositoryPresenca.createMultiple(presencasParaCriar);
