@@ -1,5 +1,5 @@
 import { Router } from "express";
-import SalaController from "../Controllers/SalaController";
+import SalaController from "../controllers/SalaController";
 
 const router = Router();
 

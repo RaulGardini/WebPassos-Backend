@@ -14,8 +14,12 @@ import RouteMatricula from "./Routes/RouteMatricula";
 import RouteDashboard from "./Routes/RouteDashboard";
 import RouteFornecedor from "./Routes/RouteFornecedor";
 import RouteChamada from "./Routes/RouteChamada";
-import RoutePresenca from "./Routes/RoutePresenca"
-import RouteMatriculasMov from "./Routes/RouteMatriculasMov"
+import RoutePresenca from "./Routes/RoutePresenca";
+import RouteMatriculasMov from "./Routes/RouteMatriculasMov";
+import RouteHoraAula from "./Routes/RouteHoraAula";
+import RouteHoraAulaProfSec from "./Routes/RouteHoraAulaProfSec";
+import RouteTempoAulaValor from "./Routes/RouteTempoAulaValor";
+import FolhaPagamento from "./Routes/RouteFolhaPagamento"
 
 const app = express();
 app.use(express.json());
@@ -40,6 +44,10 @@ app.use("/fornecedores", RouteFornecedor);
 app.use("/chamadas", RouteChamada);
 app.use("/presencas", RoutePresenca);
 app.use("/matriculasMov", RouteMatriculasMov);
+app.use("/horaAula", RouteHoraAula);
+app.use("/horaAulaProfSec", RouteHoraAulaProfSec);
+app.use("/tempoAulaValor", RouteTempoAulaValor);
+app.use("/folhaPagamento", FolhaPagamento);
 
 sequelize.authenticate()
   .then(() => console.log("✅ Conectado ao banco com sucesso!"))
