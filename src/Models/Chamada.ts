@@ -1,5 +1,6 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../config/database";
+import Presenca from "./Presenca";
 
 interface ChamadaAttributes {
     chamada_id: number;
@@ -54,5 +55,9 @@ Chamada.init(
         timestamps: false,
     }
 );
+Chamada.hasMany(Presenca, { 
+    foreignKey: 'chamada_id', 
+    as: 'presencas' 
+});
 
 export default Chamada;

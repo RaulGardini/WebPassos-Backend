@@ -18,9 +18,7 @@ Usuario
 
 Alunos
 
-🔵 GET /alunos - lista todos os alunos
-
-🔵 GET /alunos/filter - lista todos os alunos com filtro e com paginação
+🔵 GET /alunos - lista todos os alunos com filtro e com paginação
 
 🔵 GET /alunos/:id - lista aluno por id
 
@@ -145,3 +143,49 @@ Fornecedor
 🟡 PUT /fornecedores/:id - atualiza um fornecedor
 
 🔴 DELETE /fornecedores/:id - deleta um fornecedor
+
+Chamada
+
+🟢 POST /chamadas/turma/:turma_id/hoje - cria chamada para o dia de hoje
+
+🟢 POST /chamadas/gerar/:colaborador_id - crie as chamadas do mes
+
+🔵 GET /chamadas/colaborador/:colaborador_id/hoje - retorna as chamadas de hoje
+
+🔵 GET /chamadas/colaborador/:colaborador_id/mes - retorna as chamadas do mes
+
+Presenca
+
+🔵 GET /presencas/chamada/:chamada_id - lista as presencas de uma chamada
+
+🟢 POST /presencas/chamada/:chamada_id - cria as presencas da chamada
+
+🟡 PUT /presencas/presenca_id - atualiza o status da presenca
+
+Hora aula
+
+🔵 GET /horaAula - lista as hora_aula
+
+🟢 POST /horaAula - salva uma nova hora_aula
+
+🔴 DELETE /horaAula/:id - deleta uma hora_aula
+
+Hora aula prof sec
+
+🔵 GET /horaAulaProfSec - lista as hora_aula_prof_sec
+
+🟢 POST /horaAulaProfSec - salva uma nova hora_aula_prof_sec
+
+🔴 DELETE /horaAulaProfSec/:id - deleta uma hora_aula_prof_sec
+
+Tempo aula valor
+
+🔵 GET /tempoAulaValor - lista as tempo_aula_valor
+
+🟢 POST /tempoAulaValor - salva uma nova tempo_aula_valor
+
+🔴 DELETE /tempoAulaValor/:id - deleta uma tempo_aula_valor
+
+Folha pagamento
+
+🔵 GET /folhaPagamento - calcula a folha de pagamento do colaborador
