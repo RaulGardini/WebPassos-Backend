@@ -25,10 +25,9 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-  origin: "http://localhost:5173" // ou a porta do seu React
+  origin: "http://localhost:5173"
 }));
 
-// Rotas
 app.use("/usuarios", usuarioRoutes);
 app.use("/alunos", alunosRoutes);
 app.use("/colaboradores", colaboradoresRoutes);
