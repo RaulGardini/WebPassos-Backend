@@ -11,9 +11,12 @@ interface MatriculaAttributes {
   status: "ativa" | "inativa";
   valor_matricula: number;
   data_matricula: Date;
+  desconto_perc: number;
+  desconto_num: number;
+  valor_final:number;
 }
 
-interface MatriculaCreationAttributes extends Optional<MatriculaAttributes, "matricula_id" | "data_matricula"> {}
+interface MatriculaCreationAttributes extends Optional<MatriculaAttributes, "matricula_id" | "data_matricula" | "desconto_perc" | "desconto_num"> {}
 
 class Matricula extends Model<MatriculaAttributes, MatriculaCreationAttributes> implements MatriculaAttributes {
   public matricula_id!: number;
@@ -23,6 +26,9 @@ class Matricula extends Model<MatriculaAttributes, MatriculaCreationAttributes> 
   public status!: "ativa" | "inativa";
   public valor_matricula!: number;
   public data_matricula!: Date;
+  public desconto_perc!: number;
+  public desconto_num!: number;
+  public valor_final!: number;
 }
 
 Matricula.init(
@@ -46,9 +52,9 @@ Matricula.init(
       allowNull: false,
     },
     status: {
-      type: DataTypes.ENUM("ativo", "inativo"),
+      type: DataTypes.ENUM("ativa", "inativa"),
       allowNull: false,
-      defaultValue: "ativo",
+      defaultValue: "ativa",
     },
     valor_matricula: {
       type: DataTypes.DECIMAL(10, 2),
@@ -58,6 +64,20 @@ Matricula.init(
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
+    desconto_perc: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0,
+    },
+    desconto_num: {
+      type: DataTypes.DECIMAL(5, 2),
+      allowNull: false,
+      defaultValue: 0,
+    },
+    valor_final: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+    }
   },
   {
     sequelize,

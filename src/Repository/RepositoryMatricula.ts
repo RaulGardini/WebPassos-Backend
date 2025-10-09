@@ -3,6 +3,8 @@ import Aluno from "../Models/Aluno";
 import Turma from "../Models/Turma";
 import MatriculaMov from "../Models/MatriculaMov";
 import MatriculaFilter from "../Filter/Matricula/MatriculaFilter";
+import { UpdateMatriculaDTO } from "../DTOs/Matricula/UpdateMatriculaDTO";
+import { ReadMatriculaDTO } from "../DTOs/Matricula/ReadMatriculaDTO";
 import { Op } from "sequelize";
 
 class RepositoryMatricula {
@@ -55,6 +57,84 @@ class RepositoryMatricula {
             order: [["data_matricula", "ASC"]]
         });
     }
+
+    static async getAll(aluno_id: number): Promise<ReadMatriculaDTO[]> {
+    const matriculas = await Matricula.findAll({
+        where: { aluno_id },
+        include: [{
+            model: Turma,
+            as: "turma",
+            attributes: ["nome"]
+        }],
+        order: [["data_matricula", "DESC"]]
+    });
+
+    return matriculas.map(m => {
+        const matriculaJSON = m.toJSON() as any;
+        return {
+            matricula_id: matriculaJSON.matricula_id,
+            numero_matricula: matriculaJSON.numero_matricula,
+            turma_id: matriculaJSON.turma_id,
+            nome_turma: matriculaJSON.turma.nome,
+            status: matriculaJSON.status,
+            valor_matricula: matriculaJSON.valor_matricula,
+            data_matricula: matriculaJSON.data_matricula,
+            desconto_perc: matriculaJSON.desconto_perc,
+            desconto_num: matriculaJSON.desconto_num,
+            valor_final: matriculaJSON.valor_final
+        } as ReadMatriculaDTO;
+    });
+}
+
+    static async update(matricula_id: number, matriculaData: UpdateMatriculaDTO): Promise<number> {
+    // 🔸 Pega a matrícula atual para ter acesso ao valor original
+    const matricula = await Matricula.findByPk(matricula_id);
+    if (!matricula) {
+        throw new Error("Matrícula não encontrada");
+    }
+
+    // ✅ NOVA LÓGICA: Pega os valores recebidos
+    let desconto_perc = Number(matriculaData.desconto_perc || 0);
+    let desconto_num = Number(matriculaData.desconto_num || 0);
+
+
+    // ✅ Se ambos foram enviados com valor > 0, prioriza o percentual e zera o numérico
+    if (desconto_perc > 0 && desconto_num > 0) {
+        desconto_num = 0;
+    }
+
+    // ✅ Se desconto percentual foi informado (> 0), zera o numérico
+    if (desconto_perc > 0) {
+        desconto_num = 0;
+    }
+    // ✅ Se desconto numérico foi informado (> 0), zera o percentual
+    else if (desconto_num > 0) {
+        desconto_perc = 0;
+    }
+
+    // ✅ Calcula valor final
+    const valorMatricula = Number(matricula.valor_matricula);
+    let valor_final = valorMatricula;
+
+    if (desconto_perc > 0) {
+        valor_final = valorMatricula - (valorMatricula * (desconto_perc / 100));
+    } else if (desconto_num > 0) {
+        valor_final = valorMatricula - desconto_num;
+    }
+
+    const [affectedRows] = await Matricula.update(
+        { 
+            desconto_perc, 
+            desconto_num, 
+            valor_final 
+        },
+        { where: { matricula_id } }
+    );
+
+    console.log(`✅ Linhas afetadas: ${affectedRows}`);
+
+    return affectedRows;
+}
 
     static async findTurmasDoAluno(aluno_id: number) {
         return await Matricula.findAll({
