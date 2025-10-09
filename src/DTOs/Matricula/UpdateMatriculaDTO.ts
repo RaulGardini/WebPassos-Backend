@@ -1,4 +1,5 @@
 export interface UpdateMatriculaDTO {
-  valor_matricula?: number;
-  status?: string;
+  desconto_perc: number;
+  desconto_num: number;
+  valor_final: number;
 }

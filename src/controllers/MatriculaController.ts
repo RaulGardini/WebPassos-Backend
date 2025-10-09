@@ -32,6 +32,31 @@ class MatriculaController {
     }
   }
 
+  static async getAll(req: Request, res: Response) {
+    const { aluno_id } = req.params;
+    const alunoId = parseInt(aluno_id);
+    const matriculas = await ServiceMatricula.getAll(alunoId);
+    
+    return res.status(200).json(matriculas);
+}
+
+static async updateMatricula(req: Request, res: Response) {
+  try {
+    const { matricula_id } = req.params; // <-- nome correto
+    const affectedRows = await ServiceMatricula.updateMatricula(Number(matricula_id), req.body);
+    return res.json({ updated: affectedRows });
+  } catch (error: any) {
+    if (error.message === "Aluno não encontrado") {
+      return res.status(404).json({ error: error.message });
+    }
+    if (error.message.includes("já cadastrado") ||
+        error.message.includes("inválido")) {
+      return res.status(400).json({ error: error.message });
+    }
+    return res.status(500).json({ error: error.message });
+  }
+}
+
   // GET /turmas/:turma_id/alunos-matriculados
   static async getAlunosMatriculados(req: Request, res: Response) {
     try {

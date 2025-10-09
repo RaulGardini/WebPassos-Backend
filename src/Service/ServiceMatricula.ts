@@ -1,5 +1,7 @@
 import RepositoryMatricula from "../Repository/RepositoryMatricula";
 import { CreateMatriculaDTO } from "../DTOs/Matricula/CreateMatriculaDTO";
+import { UpdateMatriculaDTO } from "../DTOs/Matricula/UpdateMatriculaDTO";
+import { ReadMatriculaDTO } from "../DTOs/Matricula/ReadMatriculaDTO";
 import MatriculaFilter from "../Filter/Matricula/MatriculaFilter";
 import MatriculaMov from "../Models/MatriculaMov";
 
@@ -35,7 +37,7 @@ class ServiceMatricula {
         }
 
         const turmasDisponiveis = await RepositoryMatricula.findTurmasDisponiveis(aluno_id);
-        
+
         // Adicionar informações de capacidade para cada turma
         const turmasComInfo = await Promise.all(
             turmasDisponiveis.map(async (turma) => {
@@ -50,6 +52,15 @@ class ServiceMatricula {
         );
 
         return turmasComInfo;
+    }
+
+    static async getAll(aluno_id: number): Promise<ReadMatriculaDTO[]> {
+        return await RepositoryMatricula.getAll(aluno_id);
+    }
+
+    static async updateMatricula(matricula_id: number, data: UpdateMatriculaDTO) {
+        const affectedRows = await RepositoryMatricula.update(matricula_id, data);
+        return affectedRows;
     }
 
     // Matricular aluno em uma turma específica (novo endpoint)
@@ -83,14 +94,18 @@ class ServiceMatricula {
         // Gerar número da matrícula
         const numeroMatricula = await RepositoryMatricula.generateNumeroMatricula();
 
-        // Criar matrícula
+        // ✅ Criar matrícula com valor_final igual ao valor_matricula (sem descontos iniciais)
+        const valorMatricula = Number(turma.mensalidade);
         const matriculaData = {
             aluno_id,
             turma_id,
             numero_matricula: numeroMatricula,
-            valor_matricula: turma.mensalidade,
+            valor_matricula: valorMatricula,
+            valor_final: valorMatricula, // ✅ ADICIONA O VALOR_FINAL
             data_matricula: new Date(),
-            status: "ativa" as const
+            status: "ativa" as const,
+            desconto_perc: 0,
+            desconto_num: 0
         };
 
         const novaMatricula = await RepositoryMatricula.create(matriculaData);
@@ -98,14 +113,11 @@ class ServiceMatricula {
 
         // Registrar movimentação apenas se for a primeira matrícula
         if (isPrimeiraMatricula) {
-                const movimentacao = await MatriculaMov.create({
-                    aluno_id: aluno_id,
-                    tipo: "realizada",
-                    data_mov: new Date()
-                });
-
-        } else {
-
+            const movimentacao = await MatriculaMov.create({
+                aluno_id: aluno_id,
+                tipo: "realizada",
+                data_mov: new Date()
+            });
         }
 
         // Retornar matrícula com dados do aluno e turma
@@ -139,26 +151,29 @@ class ServiceMatricula {
         // Gerar número da matrícula
         const numeroMatricula = await RepositoryMatricula.generateNumeroMatricula();
 
-        // Criar matrícula
+        // ✅ Criar matrícula com valor_final igual ao valor_matricula (sem descontos iniciais)
+        const valorMatricula = Number(turma.mensalidade);
         const matriculaData = {
             aluno_id,
             turma_id,
             numero_matricula: numeroMatricula,
-            valor_matricula: turma.mensalidade,
+            valor_matricula: valorMatricula,
+            valor_final: valorMatricula, // ✅ ADICIONA O VALOR_FINAL
             data_matricula: new Date(),
-            status: "ativa" as const
+            status: "ativa" as const,
+            desconto_perc: 0,
+            desconto_num: 0
         };
 
         const novaMatricula = await RepositoryMatricula.create(matriculaData);
         console.log("Matrícula criada com ID:", novaMatricula.matricula_id);
 
         if (isPrimeiraMatricula) {
-                const movimentacao = await MatriculaMov.create({
-                    aluno_id: aluno_id,
-                    tipo: "realizada",
-                    data_mov: new Date()
-                });
-        } else {
+            const movimentacao = await MatriculaMov.create({
+                aluno_id: aluno_id,
+                tipo: "realizada",
+                data_mov: new Date()
+            });
         }
 
         // Retornar matrícula com dados do aluno
@@ -176,7 +191,7 @@ class ServiceMatricula {
 
         // Contar matrículas do aluno ANTES de deletar
         const countAntes = await RepositoryMatricula.countMatriculasDoAluno(aluno_id);
-        
+
         console.log("=== DELETANDO MATRÍCULA ===");
         console.log("Matrícula ID:", matricula_id);
         console.log("Aluno ID:", aluno_id);
